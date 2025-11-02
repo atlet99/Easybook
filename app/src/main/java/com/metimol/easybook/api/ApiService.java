@@ -26,4 +26,10 @@ public interface ApiService {
             @Query("query") String query,
             @Query("ru_audioknigi_app") int appId
     );
+
+    @GET("graphql/3/")
+    Call<ApiResponse<BooksWithDatesData>> getBooksWithDates(
+            @Query("query") String query,
+            @Query("ru_audioknigi_app") int appId
+    );
 }

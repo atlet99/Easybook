@@ -8,6 +8,14 @@ public class Book {
     private int id;
     @SerializedName("name")
     private String name;
+    @SerializedName("urlName")
+    private String urlName;
+    @SerializedName("genre")
+    private Genre genre;
+    @SerializedName("serie")
+    private Serie serie;
+    @SerializedName("serieIndex")
+    private int serieIndex;
     @SerializedName("aboutBb")
     private String description;
     @SerializedName("authors")
@@ -18,6 +26,10 @@ public class Book {
     private int likes;
     @SerializedName("dislikes")
     private int dislikes;
+    @SerializedName("defaultPoster")
+    private String defaultPoster;
+    @SerializedName("defaultPosterMain")
+    private String defaultPosterMain;
     @SerializedName("totalDuration")
     private int totalDuration;
 
@@ -28,11 +40,17 @@ public class Book {
     // Getters
     public int getId() { return id; }
     public String getName() { return name; }
+    public String getUrlName() { return urlName; }
+    public Genre getGenre() { return genre; }
+    public Serie getSerie() { return serie; }
+    public int getSerieIndex() { return serieIndex; }
     public String getDescription() { return description; }
     public List<Author> getAuthors() { return authors; }
     public List<Author> getReaders() { return readers; }
     public int getLikes() { return likes; }
     public int getDislikes() { return dislikes; }
+    public String getDefaultPoster() { return defaultPoster; }
+    public String getDefaultPosterMain() { return defaultPosterMain; }
     public int getTotalDuration() { return totalDuration; }
     public BookFiles getFiles() { return files; }
 }
