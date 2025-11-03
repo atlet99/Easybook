@@ -47,11 +47,28 @@ public class MainViewModel extends ViewModel {
         List<Category> categoryList = new ArrayList<>();
 
         categoryList.add(new Category("1", "Fantasy", R.drawable.ic_category_fantasy));
-        categoryList.add(new Category("2", "Detective", R.drawable.ic_category_detective));
-        categoryList.add(new Category("3", "Business", R.drawable.ic_category_business));
-        categoryList.add(new Category("4", "Audio Play", R.drawable.ic_category_audiospektakl));
-        categoryList.add(new Category("5", "Biography", R.drawable.ic_category_biography));
-        categoryList.add(new Category("6", "Kids", R.drawable.ic_category_kids));
+        categoryList.add(new Category("2", "Thriller", R.drawable.ic_category_fantasy));
+        categoryList.add(new Category("3", "Drama", R.drawable.ic_category_fantasy));
+        categoryList.add(new Category("4", "Business Growth", R.drawable.ic_category_fantasy));
+        categoryList.add(new Category("5", "Biography", R.drawable.ic_category_fantasy));
+        categoryList.add(new Category("6", "Children", R.drawable.ic_category_fantasy));
+        categoryList.add(new Category("7", "History Culture", R.drawable.ic_category_fantasy));
+        categoryList.add(new Category("8", "Classic", R.drawable.ic_category_fantasy));
+        categoryList.add(new Category("9", "Health", R.drawable.ic_category_fantasy));
+        categoryList.add(new Category("10", "Foreign Language", R.drawable.ic_category_fantasy));
+        categoryList.add(new Category("11", "Non-Fiction", R.drawable.ic_category_fantasy));
+        categoryList.add(new Category("12", "Education", R.drawable.ic_category_fantasy));
+        categoryList.add(new Category("13", "Poetry", R.drawable.ic_category_fantasy));
+        categoryList.add(new Category("14", "Adventure", R.drawable.ic_category_fantasy));
+        categoryList.add(new Category("15", "Psychology", R.drawable.ic_category_fantasy));
+        categoryList.add(new Category("16", "Miscellaneous", R.drawable.ic_category_fantasy));
+        categoryList.add(new Category("17", "Ranobe", R.drawable.ic_category_fantasy));
+        categoryList.add(new Category("18", "Religion", R.drawable.ic_category_fantasy));
+        categoryList.add(new Category("19", "Novel", R.drawable.ic_category_fantasy));
+        categoryList.add(new Category("20", "True Crime", R.drawable.ic_category_fantasy));
+        categoryList.add(new Category("21", "Horror", R.drawable.ic_category_fantasy));
+        categoryList.add(new Category("22", "Esoteric", R.drawable.ic_category_fantasy));
+        categoryList.add(new Category("23", "Humor", R.drawable.ic_category_fantasy));
 
         categories.setValue(categoryList);
     }
