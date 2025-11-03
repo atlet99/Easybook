@@ -39,6 +39,7 @@ public class MainFragment extends Fragment {
     EditText search;
     public static final String IS_FIRST_START_KEY = "is_first_start";
     private RecyclerView shortCategoriesRecyclerView;
+    private ConstraintLayout categoriesHeader;
     private MainViewModel mainViewModel;
     private CategoryAdapter categoryAdapter;
     private BookAdapter bookAdapter;
@@ -60,6 +61,7 @@ public class MainFragment extends Fragment {
         tvName = view.findViewById(R.id.tvName);
         search = view.findViewById(R.id.search);
         shortCategoriesRecyclerView = requireView().findViewById(R.id.shortCategoriesRecyclerView);
+        categoriesHeader = requireView().findViewById(R.id.categories_header);
 
         ImageView clear_search = view.findViewById(R.id.clear_search);
         ConstraintLayout header = view.findViewById(R.id.header);
@@ -100,8 +102,12 @@ public class MainFragment extends Fragment {
                 String currentText = s.toString();
                 if (currentText.isEmpty()) {
                     clear_search.setVisibility(View.GONE);
+                    categoriesHeader.setVisibility(View.VISIBLE);
+                    shortCategoriesRecyclerView.setVisibility(View.VISIBLE);
                 } else {
                     clear_search.setVisibility(View.VISIBLE);
+                    categoriesHeader.setVisibility(View.GONE);
+                    shortCategoriesRecyclerView.setVisibility(View.GONE);
                 }
 
                 searchRunnable = () -> {
