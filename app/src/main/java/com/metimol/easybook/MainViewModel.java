@@ -130,7 +130,7 @@ public class MainViewModel extends AndroidViewModel {
             }
 
             @Override
-            public void onFailure(@NonNull Call<ApiResponse<BooksWithDatesData>> call, Throwable t) {
+            public void onFailure(@NonNull Call<ApiResponse<BooksWithDatesData>> call, @NonNull Throwable t) {
                 isLoading.setValue(false);
             }
         });
@@ -161,11 +161,8 @@ public class MainViewModel extends AndroidViewModel {
                     List<Book> searchResults = new ArrayList<>();
                     SearchData data = response.body().getData();
                     if (data.getBookListResponse() != null && data.getBookListResponse().getItems() != null) {
-                        data.getBookListResponse().getItems().forEach(bookWithDate -> {
-                            if (bookWithDate != null && bookWithDate.getData() != null) {
-                                searchResults.addAll(bookWithDate.getData());
-                            }
-                        });
+                        searchResults.addAll(data.getBookListResponse().getItems());
+
                     }
                     books.setValue(searchResults);
                 } else {
@@ -175,7 +172,7 @@ public class MainViewModel extends AndroidViewModel {
             }
 
             @Override
-            public void onFailure(@NonNull Call<ApiResponse<SearchData>> call, Throwable t) {
+            public void onFailure(@NonNull Call<ApiResponse<SearchData>> call, @NonNull Throwable t) {
                 books.setValue(new ArrayList<>());
                 isLoading.setValue(false);
             }

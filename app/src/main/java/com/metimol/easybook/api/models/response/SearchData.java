@@ -4,8 +4,8 @@ import com.google.gson.annotations.SerializedName;
 
 public class SearchData {
     @SerializedName("booksSearch")
-    private BookListResponse bookListResponse;
+    private SearchBookListResponse bookListResponse;
 
     // Getters
-    public BookListResponse getBookListResponse() { return bookListResponse; }
+    public SearchBookListResponse getBookListResponse() { return bookListResponse; }
 }
