@@ -3,11 +3,10 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
+    android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:gravity="center_horizontal"
-    android:layout_marginTop="8dp">
+    android:gravity="center_horizontal">
 
     <com.google.android.material.card.MaterialCardView
         android:layout_width="120dp"
@@ -36,15 +35,53 @@
         android:textStyle="normal"
         tools:text="Witcher" />
 
-    <TextView
-        android:id="@+id/bookAuthor"
+    <LinearLayout
         android:layout_width="120dp"
         android:layout_height="wrap_content"
-        android:maxLines="1"
-        android:ellipsize="end"
-        android:textColor="@color/light_grey"
-        android:textSize="14sp"
-        android:fontFamily="@font/sf_pro"
-        android:textStyle="normal"
-        tools:text="Andjey Sapkovskiy" />
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <ImageView
+            android:layout_width="15dp"
+            android:layout_height="15dp"
+            android:src="@drawable/ic_author" />
+
+        <TextView
+            android:id="@+id/bookAuthor"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="1dp"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:textColor="@color/light_grey"
+            android:textSize="14sp"
+            android:fontFamily="@font/sf_pro"
+            android:textStyle="normal"
+            tools:text="Metimol" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="120dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <ImageView
+            android:layout_width="12dp"
+            android:layout_height="12dp"
+            android:src="@drawable/ic_reader"/>
+
+        <TextView
+            android:id="@+id/bookReader"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="3dp"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:textColor="@color/light_grey"
+            android:textSize="14sp"
+            android:fontFamily="@font/sf_pro"
+            android:textStyle="normal"
+            tools:text="Tallum" />
+    </LinearLayout>
 </LinearLayout>

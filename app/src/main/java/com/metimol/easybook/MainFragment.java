@@ -33,6 +33,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.metimol.easybook.adapter.BookAdapter;
 import com.metimol.easybook.adapter.CategoryAdapter;
+import com.metimol.easybook.utils.GridSpacingItemDecoration;
 import com.metimol.easybook.utils.HorizontalSpacingItemDecoration;
 
 public class MainFragment extends Fragment {
@@ -171,7 +172,19 @@ public class MainFragment extends Fragment {
     private void setupBooksRecyclerView() {
         bookAdapter = new BookAdapter();
         RecyclerView booksRecyclerView = requireView().findViewById(R.id.booksRecyclerView);
-        booksRecyclerView.setLayoutManager(new GridLayoutManager(getContext(), 3));
+
+        int spanCount = 3;
+
+        int spacingInPixels = (int) (12 * getResources().getDisplayMetrics().density);
+
+        booksRecyclerView.setLayoutManager(new GridLayoutManager(getContext(), spanCount));
+
+        booksRecyclerView.addItemDecoration(new GridSpacingItemDecoration(
+                spanCount,
+                spacingInPixels,
+                true
+        ));
+
         booksRecyclerView.setAdapter(bookAdapter);
         booksRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override

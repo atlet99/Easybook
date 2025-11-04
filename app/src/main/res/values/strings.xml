@@ -29,6 +29,7 @@
     <string name="skip">Skip</string>
     <string name="category_image_desc">Category image</string>
     <string name="back">Back</string>
+    <string name="unknown">Unknown</string>
 
     <string-array name="category_names">
         <item>Fantasy</item>

@@ -1,6 +1,5 @@
 package com.metimol.easybook.adapter;
 
-import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -51,12 +50,14 @@ public class BookAdapter extends ListAdapter<Book, BookAdapter.BookViewHolder> {
         private final ImageView bookCover;
         private final TextView bookTitle;
         private final TextView bookAuthor;
+        private final TextView bookReader;
 
         public BookViewHolder(@NonNull View itemView) {
             super(itemView);
             bookCover = itemView.findViewById(R.id.bookCover);
             bookTitle = itemView.findViewById(R.id.bookTitle);
             bookAuthor = itemView.findViewById(R.id.bookAuthor);
+            bookReader = itemView.findViewById(R.id.bookReader);
         }
 
         public void bind(Book book) {
@@ -66,8 +67,16 @@ public class BookAdapter extends ListAdapter<Book, BookAdapter.BookViewHolder> {
                 String Author = book.getAuthors().get(0).getName() + " " + book.getAuthors().get(0).getSurname();
                 bookAuthor.setText(Author);
             } else {
-                bookAuthor.setText("");
+                bookAuthor.setText(itemView.getContext().getString(R.string.unknown));
             }
+
+            if (book.getReaders() != null && !book.getReaders().isEmpty()) {
+                String Reader = book.getReaders().get(0).getName() + " " + book.getReaders().get(0).getSurname();
+                bookReader.setText(Reader);
+            } else {
+                bookReader.setText(itemView.getContext().getString(R.string.unknown));
+            }
+
             Glide.with(itemView.getContext())
                     .load(book.getDefaultPoster())
                     .into(bookCover);
