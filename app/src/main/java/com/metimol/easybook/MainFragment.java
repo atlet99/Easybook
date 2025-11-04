@@ -147,11 +147,7 @@ public class MainFragment extends Fragment {
 
         mainViewModel.getIsLoading().observe(getViewLifecycleOwner(), isLoading -> {
             requireView().findViewById(R.id.progressBar).setVisibility(isLoading ? View.VISIBLE : View.GONE);
-            if (isLoading) {
-                searchCard.setVisibility(View.GONE);
-                coordinator.setVisibility(View.GONE);
-                noInternetView.setVisibility(View.GONE);
-            } else {
+            if (!isLoading) {
                 Boolean isError = mainViewModel.getLoadError().getValue();
                 if (isError != null && isError) {
                     showErrorView();
