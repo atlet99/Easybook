@@ -13,6 +13,7 @@ navigationFragment = "2.9.5"
 room = "2.8.2"
 kotlin = "2.0.21"
 ksp = "2.0.21-1.0.27"
+swiperefreshlayout = "1.1.0"
 
 [libraries]
 cardview = { module = "androidx.cardview:cardview", version.ref = "cardview" }
@@ -29,6 +30,7 @@ navigation-fragment = { group = "androidx.navigation", name = "navigation-fragme
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
 room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
 room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
+swiperefreshlayout = { module = "androidx.swiperefreshlayout:swiperefreshlayout", version.ref = "swiperefreshlayout" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

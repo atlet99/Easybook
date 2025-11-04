@@ -9,6 +9,8 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.CircularProgressDrawable;
+
 import com.bumptech.glide.Glide;
 import com.metimol.easybook.R;
 import com.metimol.easybook.api.models.Book;
@@ -51,6 +53,7 @@ public class BookAdapter extends ListAdapter<Book, BookAdapter.BookViewHolder> {
         private final TextView bookTitle;
         private final TextView bookAuthor;
         private final TextView bookReader;
+        private final CircularProgressDrawable progressDrawable;
 
         public BookViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -58,6 +61,11 @@ public class BookAdapter extends ListAdapter<Book, BookAdapter.BookViewHolder> {
             bookTitle = itemView.findViewById(R.id.bookTitle);
             bookAuthor = itemView.findViewById(R.id.bookAuthor);
             bookReader = itemView.findViewById(R.id.bookReader);
+
+            progressDrawable = new CircularProgressDrawable(itemView.getContext());
+            progressDrawable.setStrokeWidth(5f);
+            progressDrawable.setCenterRadius(30f);
+            progressDrawable.start();
         }
 
         public void bind(Book book) {
@@ -79,6 +87,9 @@ public class BookAdapter extends ListAdapter<Book, BookAdapter.BookViewHolder> {
 
             Glide.with(itemView.getContext())
                     .load(book.getDefaultPoster())
+                    .placeholder(progressDrawable)
+                    .error(R.drawable.ic_placeholder_book)
+                    .fallback(R.drawable.ic_placeholder_book)
                     .into(bookCover);
         }
     }

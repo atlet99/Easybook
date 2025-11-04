@@ -55,4 +55,5 @@ dependencies {
     implementation(libs.logging.interceptor)
     implementation(libs.glide)
     annotationProcessor(libs.compiler)
+    implementation(libs.swiperefreshlayout)
 }

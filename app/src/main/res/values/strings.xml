@@ -1,62 +1,62 @@
 <resources>
     <!--Start Screen-->
     <string name="app_name">EasyBook</string>
-    <string name="listen_to_your_favourite_books">Listen to your\nfavourite books</string>
-    <string name="with_over_million_volumes_of_spoken_audio_content_such_as_podcasts_audiobooks">With over million volumes of spoken audio content such as podcasts, audiobooks…</string>
-    <string name="men_listen_audiobooks">Men listen audiobooks</string>
-    <string name="get_started">Get Started</string>
+    <string name="listen_to_your_favourite_books">Слушайте свои\nлюбимые книги</string>
+    <string name="with_over_million_volumes_of_spoken_audio_content_such_as_podcasts_audiobooks">Более миллиона единиц аудиоконтента, такого как подкасты, аудиокниги…</string>
+    <string name="men_listen_audiobooks">Мужчина слушает аудиокниги</string>
+    <string name="get_started">Начать</string>
 
     <!--Main Screen-->
-    <string name="good_afternoon">Good Afternoon,</string>
-    <string name="good_morning">Good Morning,</string>
-    <string name="good_evening">Good Evening,</string>
-    <string name="good_night">Good Night,</string>
-    <string name="have_a_good_day">Ready for a new story?</string>
-    <string name="women_listen_audiobook">Women listen audiobook</string>
-    <string name="discover">Discover</string>
-    <string name="globe_icon">Globe icon</string>
-    <string name="collection">Collection</string>
-    <string name="profile">Profile</string>
-    <string name="search_icon">Search icon</string>
-    <string name="search">Search books or authors</string>
-    <string name="clear_search">Clear search</string>
-    <string name="categories">Categories</string>
-    <string name="view_more">View more</string>
-    <string name="try_again">Try again</string>
-    <string name="unknown">Unknown</string>
-    <string name="no_internet_connection">No Internet connection</string>
-    <string name="could_not_load_books">Could not load books</string>
-    <string name="no_internet">No Internet</string>
+    <string name="good_afternoon">Добрый день,</string>
+    <string name="good_morning">Доброе утро,</string>
+    <string name="good_evening">Добрый вечер,</string>
+    <string name="good_night">Доброй ночи,</string>
+    <string name="have_a_good_day">Готовы к новой истории?</string>
+    <string name="women_listen_audiobook">Женщина слушает аудиокнигу</string>
+    <string name="discover">Обзор</string>
+    <string name="globe_icon">Иконка глобуса</string>
+    <string name="collection">Коллекция</string>
+    <string name="profile">Профиль</string>
+    <string name="search_icon">Иконка поиска</string>
+    <string name="search">Поиск книг или авторов</string>
+    <string name="clear_search">Очистить поиск</string>
+    <string name="categories">Категории</string>
+    <string name="view_more">Смотреть все</string>
+    <string name="try_again">Попробовать снова</string>
+    <string name="unknown">Неизвестно</string>
+    <string name="no_internet_connection">Нет подключения к Интернету</string>
+    <string name="could_not_load_books">Не удалось загрузить книги</string>
+    <string name="no_internet">Нет Интернета</string>
 
     <!--Categories Screen-->
-    <string name="category_icon">Category Icon</string>
-    <string name="categories_title">Categories</string>
-    <string name="category_image_desc">Category image</string>
-    <string name="back">Back</string>
+    <string name="category_icon">Иконка категории</string>
+    <string name="categories_title">Категории</string>
+    <string name="category_image_desc">Изображение категории</string>
+    <string name="back">Назад</string>
 
     <string-array name="category_names">
-        <item>Fantasy</item>
-        <item>Thriller</item>
-        <item>Drama</item>
-        <item>Business</item>
-        <item>Biography</item>
-        <item>Children</item>
-        <item>History Culture</item>
-        <item>Classic</item>
-        <item>Health</item>
-        <item>Foreign Language</item>
-        <item>Non-Fiction</item>
-        <item>Education</item>
-        <item>Poetry</item>
-        <item>Adventure</item>
-        <item>Psychology</item>
-        <item>Miscellaneous</item>
-        <item>Ranobe</item>
-        <item>Religion</item>
-        <item>Novel</item>
-        <item>True Crime</item>
-        <item>Horror</item>
-        <item>Esoteric</item>
-        <item>Humor</item>
+        <item>Фэнтези</item>
+        <item>Триллер</item>
+        <item>Драма</item>
+        <item>Бизнес</item>
+        <item>Биографии</item>
+        <item>Детские</item>
+        <item>История и культура</item>
+        <item>Классика</item>
+        <item>Здоровье</item>
+        <item>Иностранные языки</item>
+        <item>Нон-фикшн</item>
+        <item>Образование</item>
+        <item>Поэзия</item>
+        <item>Приключения</item>
+        <item>Психология</item>
+        <item>Разное</item>
+        <item>Ранобэ</item>
+        <item>Религия</item>
+        <item>Роман</item>
+        <item>Криминал</item>
+        <item>Ужасы</item>
+        <item>Эзотерика</item>
+        <item>Юмор</item>
     </string-array>
 </resources>
