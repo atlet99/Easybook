@@ -5,6 +5,7 @@ import static com.metimol.easybook.MainActivity.dpToPx;
 
 import java.util.Calendar;
 import java.util.List;
+import java.util.Objects;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -175,14 +176,16 @@ public class MainFragment extends Fragment {
 
         int spanCount = 3;
 
-        int spacingInPixels = (int) (12 * getResources().getDisplayMetrics().density);
+        int spacingInPixels = dpToPx(12, requireContext());
+        int edgeSpacingInPixels = dpToPx(10, requireContext());
 
         booksRecyclerView.setLayoutManager(new GridLayoutManager(getContext(), spanCount));
 
         booksRecyclerView.addItemDecoration(new GridSpacingItemDecoration(
                 spanCount,
                 spacingInPixels,
-                true
+                false,
+                edgeSpacingInPixels
         ));
 
         booksRecyclerView.setAdapter(bookAdapter);
