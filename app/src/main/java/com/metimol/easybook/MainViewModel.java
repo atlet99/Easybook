@@ -13,6 +13,7 @@ import com.metimol.easybook.api.models.Book;
 import com.metimol.easybook.api.models.response.ApiResponse;
 import com.metimol.easybook.api.models.response.BooksWithDatesData;
 import com.metimol.easybook.api.models.response.SearchData;
+import com.metimol.easybook.api.models.response.SourceData;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +31,8 @@ public class MainViewModel extends AndroidViewModel {
     private int currentPage = 0;
     private boolean isLastPage = false;
     private boolean isSearchActive = false;
+
+    private String currentGenreId = null;
 
     public MainViewModel(@NonNull Application application) {
         super(application);
@@ -95,7 +98,7 @@ public class MainViewModel extends AndroidViewModel {
         categories.setValue(categoryList);
     }
 
-    public void fetchBooks() {
+    public void loadMoreBooks() {
         if (Boolean.TRUE.equals(isLoading.getValue()) || isLastPage || isSearchActive) {
             return;
         }
@@ -107,54 +110,103 @@ public class MainViewModel extends AndroidViewModel {
         }
 
         ApiService apiService = ApiClient.getClient().create(ApiService.class);
-        String query = QueryBuilder.buildBooksWithDatesQuery(currentPage * 60, 60, "NEW");
-        Call<ApiResponse<BooksWithDatesData>> call = apiService.getBooksWithDates(query, 1);
-        call.enqueue(new Callback<>() {
-            @Override
-            public void onResponse(@NonNull Call<ApiResponse<BooksWithDatesData>> call, @NonNull Response<ApiResponse<BooksWithDatesData>> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    loadError.setValue(false);
 
-                    List<Book> newBooks = new ArrayList<>();
-                    BooksWithDatesData data = response.body().getData();
-                    if (data != null && data.getBooksWithDates() != null && data.getBooksWithDates().getItems() != null) {
-                        data.getBooksWithDates().getItems().forEach(bookWithDate -> {
-                            if (bookWithDate != null && bookWithDate.getData() != null) {
-                                newBooks.addAll(bookWithDate.getData());
-                            }
-                        });
-                    }
+        if (currentGenreId != null) {
+            String query = QueryBuilder.buildBooksByGenreQuery(currentGenreId, currentPage * 60, 60, QueryBuilder.SORT_NEW);
+            Call<ApiResponse<SourceData>> call = apiService.getBooksBySourceSorted(query, 1);
+            call.enqueue(new Callback<>() {
+                @Override
+                public void onResponse(@NonNull Call<ApiResponse<SourceData>> call, @NonNull Response<ApiResponse<SourceData>> response) {
+                    if (response.isSuccessful() && response.body() != null && response.body().getData() != null) {
+                        loadError.setValue(false);
 
-                    if (newBooks.isEmpty()) {
-                        isLastPage = true;
-                    } else {
-                        List<Book> currentBooks = books.getValue();
-                        List<Book> updatedBooks = new ArrayList<>();
-                        if (currentBooks != null) {
-                            updatedBooks.addAll(currentBooks);
+                        List<Book> newBooks = new ArrayList<>();
+                        SourceData data = response.body().getData();
+
+                        if (data.getBookListResponse() != null && data.getBookListResponse().getItems() != null) {
+                            newBooks.addAll(data.getBookListResponse().getItems());
                         }
-                        updatedBooks.addAll(newBooks);
-                        books.setValue(updatedBooks);
 
-                        currentPage++;
+                        handleBookResponse(newBooks);
+                    } else {
+                        handleLoadError();
                     }
-                } else {
-                    if (currentPage == 0) {
-                        loadError.setValue(true);
-                    }
+                    isLoading.setValue(false);
                 }
 
-                isLoading.setValue(false);
-            }
-
-            @Override
-            public void onFailure(@NonNull Call<ApiResponse<BooksWithDatesData>> call, @NonNull Throwable t) {
-                if (currentPage == 0) {
-                    loadError.setValue(true);
+                @Override
+                public void onFailure(@NonNull Call<ApiResponse<SourceData>> call, @NonNull Throwable t) {
+                    handleLoadError();
+                    isLoading.setValue(false);
                 }
-                isLoading.setValue(false);
+            });
+
+        } else {
+            String query = QueryBuilder.buildBooksWithDatesQuery(currentPage * 60, 60, QueryBuilder.SORT_NEW);
+            Call<ApiResponse<BooksWithDatesData>> call = apiService.getBooksWithDates(query, 1);
+            call.enqueue(new Callback<>() {
+                @Override
+                public void onResponse(@NonNull Call<ApiResponse<BooksWithDatesData>> call, @NonNull Response<ApiResponse<BooksWithDatesData>> response) {
+                    if (response.isSuccessful() && response.body() != null && response.body().getData() != null) {
+                        loadError.setValue(false);
+
+                        List<Book> newBooks = new ArrayList<>();
+                        BooksWithDatesData data = response.body().getData();
+                        if (data.getBooksWithDates() != null && data.getBooksWithDates().getItems() != null) {
+                            data.getBooksWithDates().getItems().forEach(bookWithDate -> {
+                                if (bookWithDate != null && bookWithDate.getData() != null) {
+                                    newBooks.addAll(bookWithDate.getData());
+                                }
+                            });
+                        }
+
+                        handleBookResponse(newBooks);
+                    } else {
+                        handleLoadError();
+                    }
+                    isLoading.setValue(false);
+                }
+
+                @Override
+                public void onFailure(@NonNull Call<ApiResponse<BooksWithDatesData>> call, @NonNull Throwable t) {
+                    handleLoadError();
+                    isLoading.setValue(false);
+                }
+            });
+        }
+    }
+
+    private void handleBookResponse(List<Book> newBooks) {
+        if (newBooks.isEmpty()) {
+            isLastPage = true;
+        } else {
+            List<Book> currentBooks = books.getValue();
+            List<Book> updatedBooks = new ArrayList<>();
+            if (currentBooks != null) {
+                updatedBooks.addAll(currentBooks);
             }
-        });
+            updatedBooks.addAll(newBooks);
+            books.setValue(updatedBooks);
+
+            currentPage++;
+        }
+    }
+
+    private void handleLoadError() {
+        if (currentPage == 0) {
+            loadError.setValue(true);
+        }
+    }
+
+    public void fetchBooksByGenre(String genreId) {
+        currentGenreId = genreId;
+        isSearchActive = false;
+        currentPage = 0;
+        isLastPage = false;
+        books.setValue(new ArrayList<>());
+        loadError.setValue(false);
+
+        loadMoreBooks();
     }
 
     public void searchBooks(String query) {
@@ -166,16 +218,15 @@ public class MainViewModel extends AndroidViewModel {
         }
 
         isSearchActive = true;
+        currentGenreId = null;
         isLastPage = true;
+        currentPage = 0;
         isLoading.setValue(true);
         books.setValue(new ArrayList<>());
-
         loadError.setValue(false);
 
         ApiService apiService = ApiClient.getClient().create(ApiService.class);
-
         String graphQlQuery = QueryBuilder.buildSearchQuery(0, 50, query);
-
         Call<ApiResponse<SearchData>> call = apiService.searchBooks(graphQlQuery, 1);
         call.enqueue(new Callback<>() {
             @Override
@@ -187,7 +238,6 @@ public class MainViewModel extends AndroidViewModel {
                     SearchData data = response.body().getData();
                     if (data.getBookListResponse() != null && data.getBookListResponse().getItems() != null) {
                         searchResults.addAll(data.getBookListResponse().getItems());
-
                     }
                     books.setValue(searchResults);
                 } else {
@@ -208,10 +258,13 @@ public class MainViewModel extends AndroidViewModel {
 
     public void resetBookList() {
         isSearchActive = false;
+        currentGenreId = null;
         isLoading.setValue(false);
         isLastPage = false;
         currentPage = 0;
         books.setValue(new ArrayList<>());
-        fetchBooks();
+        loadError.setValue(false);
+
+        loadMoreBooks();
     }
 }

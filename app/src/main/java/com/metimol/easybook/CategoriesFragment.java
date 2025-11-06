@@ -65,6 +65,11 @@ public class CategoriesFragment extends Fragment {
         categoryAdapter = new CategoryAdapter(R.layout.category_button_grid);
         categoriesRecyclerView.setAdapter(categoryAdapter);
 
+        categoryAdapter.setOnCategoryClickListener(category -> {
+            viewModel.fetchBooksByGenre(category.getId());
+            requireActivity().onBackPressed();
+        });
+
         int spanCount = 0;
 
         RecyclerView.LayoutManager manager = categoriesRecyclerView.getLayoutManager();

@@ -17,6 +17,16 @@ import com.metimol.easybook.Category;
 public class CategoryAdapter extends ListAdapter<Category, CategoryAdapter.CategoryViewHolder> {
     private final int layoutId;
 
+    public interface OnCategoryClickListener {
+        void onCategoryClick(Category category);
+    }
+
+    private OnCategoryClickListener clickListener;
+
+    public void setOnCategoryClickListener(OnCategoryClickListener listener) {
+        this.clickListener = listener;
+    }
+
     public CategoryAdapter(int layoutId) {
         super(DIFF_CALLBACK);
         this.layoutId = layoutId;
@@ -46,6 +56,12 @@ public class CategoryAdapter extends ListAdapter<Category, CategoryAdapter.Categ
     public void onBindViewHolder(@NonNull CategoryViewHolder holder, int position) {
         Category category = getItem(position);
         holder.bind(category);
+
+        holder.itemView.setOnClickListener(v -> {
+            if (clickListener != null) {
+                clickListener.onCategoryClick(category);
+            }
+        });
     }
 
     static class CategoryViewHolder extends RecyclerView.ViewHolder {

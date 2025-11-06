@@ -194,7 +194,7 @@ public class MainFragment extends Fragment {
 
         btnRetry.setOnClickListener(v -> {
             mainViewModel.fetchCategories();
-            mainViewModel.fetchBooks();
+            mainViewModel.loadMoreBooks();
         });
 
         setupCategoriesRecyclerView();
@@ -224,7 +224,7 @@ public class MainFragment extends Fragment {
             }
         });
 
-        mainViewModel.fetchBooks();
+        mainViewModel.loadMoreBooks();
     }
 
     @Override
@@ -292,7 +292,7 @@ public class MainFragment extends Fragment {
                 super.onScrolled(recyclerView, dx, dy);
                 GridLayoutManager layoutManager = (GridLayoutManager) recyclerView.getLayoutManager();
                 if (layoutManager != null && layoutManager.findLastCompletelyVisibleItemPosition() == bookAdapter.getItemCount() - 1) {
-                    mainViewModel.fetchBooks();
+                    mainViewModel.loadMoreBooks();
                 }
             }
         });

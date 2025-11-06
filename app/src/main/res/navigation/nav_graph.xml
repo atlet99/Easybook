@@ -35,12 +35,26 @@
             app:exitAnim="@anim/slide_out_left"
             app:popEnterAnim="@anim/slide_in_left"
             app:popExitAnim="@anim/slide_out_right" />
+        <action
+            android:id="@+id/action_mainFragment_to_booksCollectionFragment"
+            app:destination="@id/booksCollectionFragment" />
     </fragment>
 
     <fragment
         android:id="@+id/categoriesFragment"
         android:name="com.metimol.easybook.CategoriesFragment"
         android:label="CategoriesFragment"
-        tools:layout="@layout/fragment_categories" />
+        tools:layout="@layout/fragment_categories" >
+        <action
+            android:id="@+id/action_categoriesFragment_to_booksCollectionFragment"
+            app:destination="@id/booksCollectionFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/booksCollectionFragment"
+        android:name="com.metimol.easybook.BooksCollectionFragment"
+        android:label="BooksCollectionFragment"
+        tools:layout="@layout/fragment_books_collection" />
+
 </navigation>
 

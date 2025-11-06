@@ -37,6 +37,25 @@ public class QueryBuilder {
         return String.format(Locale.US, format, offset, count, sort);
     }
 
+    public static String buildBooksByGenreQuery(String genreId, int offset, int count, String sort) {
+        // 1: offset (Int) -> %d
+        // 2: count (Int) -> %d
+        // 3: source (Enum) -> %s (e.g., "GENRE")
+        // 4: id (Int) -> %s (e.g., "5")
+        // 5: sort (Enum) -> %s (e.g., "NEW")
+
+        String format = "{booksBySource(offset:%1$d, count:%2$d, source:%3$s, id:%4$s, sort:%5$s)" +
+                "{count,items" + BOOK_FRAGMENT_FIELDS + "}}";
+
+        return String.format(Locale.US, format,
+                offset,
+                count,
+                SOURCE_GENRE,
+                genreId,
+                sort
+        );
+    }
+
     public static final String SOURCE_GENRE = "GENRE";
     public static final String SOURCE_AUTHOR = "AUTHOR";
     public static final String SOURCE_SERIE = "SERIE";

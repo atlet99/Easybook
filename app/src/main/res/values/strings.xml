@@ -60,4 +60,7 @@
         <item>Эзотерика</item>
         <item>Юмор</item>
     </string-array>
+
+    <!--Collection Screen-->
+    <string name="collection_title">Заголовок коллекции</string>
 </resources>
