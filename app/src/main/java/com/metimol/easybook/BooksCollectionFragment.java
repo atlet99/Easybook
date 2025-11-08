@@ -17,18 +17,21 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import com.metimol.easybook.adapter.BookAdapter;
 import com.metimol.easybook.utils.GridSpacingItemDecoration;
 
 public class BooksCollectionFragment extends Fragment {
-
     private MainViewModel viewModel;
     private BookAdapter bookAdapter;
     private RecyclerView booksCollectionRecyclerView;
     private String categoryId;
     private String categoryName;
+    private FloatingActionButton fabScrollToTop;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -51,10 +54,11 @@ public class BooksCollectionFragment extends Fragment {
 
         viewModel = new ViewModelProvider(requireActivity()).get(MainViewModel.class);
         booksCollectionRecyclerView = view.findViewById(R.id.booksCollectionRecyclerView);
+        fabScrollToTop = view.findViewById(R.id.fab_scroll_to_top_collections);
 
         ImageView ivBack = view.findViewById(R.id.iv_collection_back);
         TextView tvTitle = view.findViewById(R.id.textViewCollectionTitle);
-        ConstraintLayout categoriesContainer = view.findViewById(R.id.categories_container);
+        ConstraintLayout collections_container = view.findViewById(R.id.collections_container);
         Context context = requireContext();
 
         if (categoryName != null) {
@@ -63,11 +67,11 @@ public class BooksCollectionFragment extends Fragment {
         ivBack.setOnClickListener(v -> NavHostFragment.findNavController(this).popBackStack());
 
         viewModel.getStatusBarHeight().observe(getViewLifecycleOwner(), height -> {
-            categoriesContainer.setPaddingRelative(
-                    categoriesContainer.getPaddingStart(),
+            collections_container.setPaddingRelative(
+                    collections_container.getPaddingStart(),
                     height + dpToPx(20, context),
-                    categoriesContainer.getPaddingEnd(),
-                    categoriesContainer.getPaddingBottom()
+                    collections_container.getPaddingEnd(),
+                    collections_container.getPaddingBottom()
             );
         });
 
@@ -78,6 +82,44 @@ public class BooksCollectionFragment extends Fragment {
         if (categoryId != null) {
             viewModel.fetchBooksByGenre(categoryId);
         }
+
+        booksCollectionRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+
+                if (dy > 0 && fabScrollToTop.getVisibility() == View.VISIBLE) {
+                    fabScrollToTop.hide();
+                } else if (dy < 0 && fabScrollToTop.getVisibility() != View.VISIBLE) {
+                    fabScrollToTop.show();
+                }
+
+                if (!recyclerView.canScrollVertically(-1) && fabScrollToTop.getVisibility() == View.VISIBLE) {
+                    fabScrollToTop.hide();
+                }
+            }
+        });
+
+        fabScrollToTop.setOnClickListener(v -> {
+            RecyclerView.LayoutManager layoutManager = booksCollectionRecyclerView.getLayoutManager();
+            LinearLayoutManager linearLayoutManager = (LinearLayoutManager) layoutManager;
+
+            assert linearLayoutManager != null;
+            int firstVisibleItemPosition = linearLayoutManager.findFirstVisibleItemPosition();
+            int scrollThreshold = 30;
+            int jumpToPosition = 10;
+
+            if (firstVisibleItemPosition > scrollThreshold) {
+                booksCollectionRecyclerView.scrollToPosition(jumpToPosition);
+
+                booksCollectionRecyclerView.post(() -> {
+                    booksCollectionRecyclerView.smoothScrollToPosition(0);
+                });
+
+            } else {
+                booksCollectionRecyclerView.smoothScrollToPosition(0);
+            }
+        });
     }
 
     private void setupRecyclerView() {
