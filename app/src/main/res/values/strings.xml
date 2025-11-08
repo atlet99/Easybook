@@ -28,6 +28,8 @@
     <string name="could_not_load_books">Не удалось загрузить книги</string>
     <string name="no_internet">Нет Интернета</string>
     <string name="scroll_to_top">Прокрутить вверх</string>
+    <string name="found_in_series">Найдено в сериях</string>
+    <string name="books_fallback">книг</string>
 
     <!--Categories Screen-->
     <string name="category_icon">Иконка категории</string>

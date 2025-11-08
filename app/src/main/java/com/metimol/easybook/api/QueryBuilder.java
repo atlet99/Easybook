@@ -14,6 +14,11 @@ public class QueryBuilder {
         return String.format(Locale.US, format, offset, count, searchText);
     }
 
+    public static String buildSeriesSearchQuery(int offset, int count, String searchText) {
+        String format = "{seriesSearch(offset:%1$s,count:%2$s,q:\"%3$s\"){count,items{id,name,booksCount}}}";
+        return String.format(Locale.US, format, offset, count, searchText);
+    }
+
     public static String buildBookDetailsQuery(int bookId) {
         String format = "{book(id:%1$s){id,name,urlName,genre{id,name},serie{id,name,booksCount}," +
                 "serieIndex,authors{id,name,surname},readers{id,name,surname}," +
@@ -38,12 +43,6 @@ public class QueryBuilder {
     }
 
     public static String buildBooksByGenreQuery(String genreId, int offset, int count, String sort) {
-        // 1: offset (Int) -> %d
-        // 2: count (Int) -> %d
-        // 3: source (Enum) -> %s (e.g., "GENRE")
-        // 4: id (Int) -> %s (e.g., "5")
-        // 5: sort (Enum) -> %s (e.g., "NEW")
-
         String format = "{booksBySource(offset:%1$d, count:%2$d, source:%3$s, id:%4$s, sort:%5$s)" +
                 "{count,items" + BOOK_FRAGMENT_FIELDS + "}}";
 
@@ -52,6 +51,19 @@ public class QueryBuilder {
                 count,
                 SOURCE_GENRE,
                 genreId,
+                sort
+        );
+    }
+
+    public static String buildBooksBySeriesQuery(String seriesId, int offset, int count, String sort) {
+        String format = "{booksBySource(offset:%1$d, count:%2$d, source:%3$s, id:%4$s, sort:%5$s)" +
+                "{count,items" + BOOK_FRAGMENT_FIELDS + "}}";
+
+        return String.format(Locale.US, format,
+                offset,
+                count,
+                SOURCE_SERIE,
+                seriesId,
                 sort
         );
     }

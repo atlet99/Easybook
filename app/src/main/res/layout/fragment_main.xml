@@ -175,6 +175,37 @@
                 tools:orientation="horizontal"
                 tools:listitem="@layout/category_button_horizontal" />
 
+            <TextView
+                android:id="@+id/series_header"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/found_in_series"
+                android:textColor="@color/black"
+                android:fontFamily="@font/sf_pro"
+                android:textSize="20sp"
+                android:textStyle="normal"
+                android:textFontWeight="500"
+                android:paddingHorizontal="10dp"
+                android:layout_marginTop="15dp"
+                android:visibility="gone"
+                app:layout_scrollFlags="scroll"
+                tools:visibility="visible" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/seriesRecyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                android:orientation="horizontal"
+                android:paddingHorizontal="10dp"
+                android:paddingVertical="3dp"
+                android:clipToPadding="false"
+                android:visibility="gone"
+                app:layout_scrollFlags="scroll"
+                tools:orientation="horizontal"
+                tools:listitem="@layout/item_serie"
+                tools:visibility="visible" />
+
         </com.google.android.material.appbar.AppBarLayout>
 
         <androidx.recyclerview.widget.RecyclerView
@@ -216,14 +247,12 @@
         app:layout_constraintBottom_toTopOf="@+id/navigation"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
-
         <ImageView
-        android:layout_width="100dp"
-        android:layout_height="100dp"
-        android:src="@drawable/ic_no_internet"
-        android:contentDescription="@string/no_internet"
-        app:tint="@color/light_grey" />
-
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:src="@drawable/ic_no_internet"
+            android:contentDescription="@string/no_internet"
+            app:tint="@color/light_grey" />
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -232,7 +261,6 @@
             android:textStyle="bold"
             android:textColor="@color/black"
             android:layout_marginTop="16dp" />
-
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -241,7 +269,6 @@
             android:textColor="@color/light_grey"
             android:layout_marginTop="8dp"
             android:textAlignment="center" />
-
         <Button
             android:id="@+id/btn_retry"
             android:layout_width="wrap_content"
@@ -269,7 +296,6 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
-
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/nav_item1"
             android:layout_width="wrap_content"
@@ -281,7 +307,6 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toStartOf="@id/nav_item2"
             app:layout_constraintHorizontal_chainStyle="spread_inside">
-
             <ImageView
                 android:id="@+id/iv_item1"
                 android:layout_width="20dp"
@@ -292,7 +317,6 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 android:contentDescription="@string/globe_icon" />
-
             <TextView
                 android:id="@+id/tv_item1"
                 android:layout_width="wrap_content"
@@ -305,7 +329,6 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/iv_item1" />
         </androidx.constraintlayout.widget.ConstraintLayout>
-
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/nav_item2"
             android:layout_width="wrap_content"
@@ -316,7 +339,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toEndOf="@id/nav_item1"
             app:layout_constraintEnd_toStartOf="@id/nav_item3">
-
+            <!-- ... -->
             <ImageView
                 android:id="@+id/iv_item2"
                 android:layout_width="20dp"
@@ -326,7 +349,6 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 android:contentDescription="@string/globe_icon" />
-
             <TextView
                 android:id="@+id/tv_item2"
                 android:layout_width="wrap_content"
@@ -339,7 +361,6 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/iv_item2" />
         </androidx.constraintlayout.widget.ConstraintLayout>
-
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/nav_item3"
             android:layout_width="wrap_content"
@@ -350,7 +371,6 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toEndOf="@id/nav_item2"
             app:layout_constraintEnd_toEndOf="parent">
-
             <ImageView
                 android:id="@+id/iv_item3"
                 android:layout_width="20dp"
@@ -360,7 +380,6 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 android:contentDescription="@string/globe_icon" />
-
             <TextView
                 android:id="@+id/tv_item3"
                 android:layout_width="wrap_content"
@@ -373,6 +392,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/iv_item3" />
         </androidx.constraintlayout.widget.ConstraintLayout>
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

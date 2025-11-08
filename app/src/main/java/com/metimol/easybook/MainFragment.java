@@ -38,6 +38,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import com.metimol.easybook.adapter.BookAdapter;
 import com.metimol.easybook.adapter.CategoryAdapter;
+import com.metimol.easybook.adapter.SeriesAdapter;
 import com.metimol.easybook.api.models.Book;
 import com.metimol.easybook.utils.GridSpacingItemDecoration;
 import com.metimol.easybook.utils.HorizontalSpacingItemDecoration;
@@ -54,6 +55,10 @@ public class MainFragment extends Fragment {
     private RecyclerView booksRecyclerView;
     private FloatingActionButton fabScrollToTop;
     private BookAdapter bookAdapter;
+
+    private RecyclerView seriesRecyclerView;
+    private SeriesAdapter seriesAdapter;
+    private TextView seriesHeader;
 
     private CardView searchCard;
     private CoordinatorLayout coordinator;
@@ -83,6 +88,9 @@ public class MainFragment extends Fragment {
         noInternetView = view.findViewById(R.id.no_internet_view);
         booksRecyclerView = requireView().findViewById(R.id.booksRecyclerView);
         fabScrollToTop = view.findViewById(R.id.fab_scroll_to_top);
+
+        seriesRecyclerView = view.findViewById(R.id.seriesRecyclerView);
+        seriesHeader = view.findViewById(R.id.series_header);
 
         ConstraintLayout clMainFragment = view.findViewById(R.id.clMainFragment);
         Button btnRetry = view.findViewById(R.id.btn_retry);
@@ -201,6 +209,9 @@ public class MainFragment extends Fragment {
         observeCategories();
         mainViewModel.fetchCategories();
 
+        setupSeriesRecyclerView();
+        observeSeries();
+
         setupBooksRecyclerView();
         observeBooks();
 
@@ -254,9 +265,9 @@ public class MainFragment extends Fragment {
         );
 
         categoryAdapter.setOnCategoryClickListener(category -> {
-            Bundle bundle = new Bundle();
-            bundle.putString("categoryId", category.getId());
-            bundle.putString("categoryName", category.getName());
+            Bundle bundle = new Bundle();bundle.putString("sourceType", "GENRE");
+            bundle.putString("sourceId", category.getId());
+            bundle.putString("sourceName", category.getName());
 
             NavHostFragment.findNavController(this)
                     .navigate(R.id.action_mainFragment_to_booksCollectionFragment, bundle);
@@ -277,6 +288,43 @@ public class MainFragment extends Fragment {
         });
     }
 
+    private void setupSeriesRecyclerView() {
+        seriesAdapter = new SeriesAdapter();
+        seriesRecyclerView.setLayoutManager(
+                new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false)
+        );
+        seriesRecyclerView.setAdapter(seriesAdapter);
+
+        int spacingInPixels = (int) (8 * getResources().getDisplayMetrics().density);
+        seriesRecyclerView.addItemDecoration(
+                new HorizontalSpacingItemDecoration(spacingInPixels)
+        );
+
+        seriesAdapter.setOnSeriesClickListener(serie -> {
+            Bundle bundle = new Bundle();
+            bundle.putString("sourceType", "SERIES");
+            bundle.putString("sourceId", serie.getId());
+            bundle.putString("sourceName", serie.getName());
+
+            NavHostFragment.findNavController(this)
+                    .navigate(R.id.action_mainFragment_to_booksCollectionFragment, bundle);
+        });
+    }
+
+    private void observeSeries() {
+        mainViewModel.getSeries().observe(getViewLifecycleOwner(), series -> {
+            if (series != null && !series.isEmpty()) {
+                seriesAdapter.submitList(series);
+                seriesHeader.setVisibility(View.VISIBLE);
+                seriesRecyclerView.setVisibility(View.VISIBLE);
+            } else {
+                seriesAdapter.submitList(null);
+                seriesHeader.setVisibility(View.GONE);
+                seriesRecyclerView.setVisibility(View.GONE);
+            }
+        });
+    }
+
     private void setupBooksRecyclerView() {
         bookAdapter = new BookAdapter();
         RecyclerView.LayoutManager layoutManager = booksRecyclerView.getLayoutManager();
@@ -291,12 +339,14 @@ public class MainFragment extends Fragment {
 
         booksRecyclerView.setLayoutManager(new GridLayoutManager(getContext(), spanCount));
 
-        booksRecyclerView.addItemDecoration(new GridSpacingItemDecoration(
-                spanCount,
-                spacingInPixels,
-                false,
-                edgeSpacingInPixels
-        ));
+        if (booksRecyclerView.getItemDecorationCount() == 0) {
+            booksRecyclerView.addItemDecoration(new GridSpacingItemDecoration(
+                    spanCount,
+                    spacingInPixels,
+                    false,
+                    edgeSpacingInPixels
+            ));
+        }
 
         booksRecyclerView.setAdapter(bookAdapter);
         booksRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
@@ -361,6 +411,10 @@ public class MainFragment extends Fragment {
 
         if (shortCategoriesRecyclerView != null) {
             shortCategoriesRecyclerView.scrollToPosition(0);
+        }
+
+        if (seriesRecyclerView != null) {
+            seriesRecyclerView.scrollToPosition(0);
         }
 
         if (search != null) {

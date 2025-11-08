@@ -22,7 +22,6 @@ import com.metimol.easybook.adapter.CategoryAdapter;
 import com.metimol.easybook.utils.GridSpacingItemDecoration;
 
 public class CategoriesFragment extends Fragment {
-
     private MainViewModel viewModel;
     private RecyclerView categoriesRecyclerView;
     private CategoryAdapter categoryAdapter;
@@ -68,8 +67,9 @@ public class CategoriesFragment extends Fragment {
 
         categoryAdapter.setOnCategoryClickListener(category -> {
             Bundle bundle = new Bundle();
-            bundle.putString("categoryId", category.getId());
-            bundle.putString("categoryName", category.getName());
+            bundle.putString("sourceType", "GENRE");
+            bundle.putString("sourceId", category.getId());
+            bundle.putString("sourceName", category.getName());
 
             NavHostFragment.findNavController(this)
                     .navigate(R.id.action_categoriesFragment_to_booksCollectionFragment, bundle);
@@ -88,9 +88,11 @@ public class CategoriesFragment extends Fragment {
         boolean includeEdge = false;
         int edgeSpacing = (int) (3 * getResources().getDisplayMetrics().density);
 
-        categoriesRecyclerView.addItemDecoration(
-                new GridSpacingItemDecoration(spanCount, spacing, includeEdge, edgeSpacing)
-        );
+        if (categoriesRecyclerView.getItemDecorationCount() == 0) {
+            categoriesRecyclerView.addItemDecoration(
+                    new GridSpacingItemDecoration(spanCount, spacing, includeEdge, edgeSpacing)
+            );
+        }
     }
 
     private void observeCategories() {

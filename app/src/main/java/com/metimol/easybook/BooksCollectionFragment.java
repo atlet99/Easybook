@@ -31,20 +31,28 @@ import java.util.List;
 
 public class BooksCollectionFragment extends Fragment {
     private MainViewModel viewModel;
-    private MainViewModel sharedViewModel;
     private BookAdapter bookAdapter;
     private RecyclerView booksCollectionRecyclerView;
-    private String categoryId;
-    private String categoryName;
     private FloatingActionButton fabScrollToTop;
     private View no_internet_view_collections;
+
+    private String sourceId;
+    private String sourceName;
+    private String sourceType;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            categoryId = getArguments().getString("categoryId");
-            categoryName = getArguments().getString("categoryName");
+            if (getArguments().containsKey("categoryId")) {
+                sourceType = "GENRE";
+                sourceId = getArguments().getString("categoryId");
+                sourceName = getArguments().getString("categoryName");
+            } else {
+                sourceType = getArguments().getString("sourceType");
+                sourceId = getArguments().getString("sourceId");
+                sourceName = getArguments().getString("sourceName");
+            }
         }
     }
 
@@ -58,7 +66,7 @@ public class BooksCollectionFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        sharedViewModel = new ViewModelProvider(requireActivity()).get(MainViewModel.class);
+        MainViewModel sharedViewModel = new ViewModelProvider(requireActivity()).get(MainViewModel.class);
         viewModel = new ViewModelProvider(requireActivity()).get(MainViewModel.class);
         booksCollectionRecyclerView = view.findViewById(R.id.booksCollectionRecyclerView);
         fabScrollToTop = view.findViewById(R.id.fab_scroll_to_top_collections);
@@ -71,8 +79,8 @@ public class BooksCollectionFragment extends Fragment {
 
         Context context = requireContext();
 
-        if (categoryName != null) {
-            tvTitle.setText(categoryName);
+        if (sourceName != null) {
+            tvTitle.setText(sourceName);
         }
         ivBack.setOnClickListener(v -> NavHostFragment.findNavController(this).popBackStack());
 
@@ -108,8 +116,12 @@ public class BooksCollectionFragment extends Fragment {
             }
         });
 
-        if (categoryId != null) {
-            viewModel.fetchBooksByGenre(categoryId);
+        if (sourceId != null && sourceType != null) {
+            if ("GENRE".equals(sourceType)) {
+                viewModel.fetchBooksByGenre(sourceId);
+            } else if ("SERIES".equals(sourceType)) {
+                viewModel.fetchBooksBySeries(sourceId);
+            }
         }
 
         booksCollectionRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
@@ -151,8 +163,12 @@ public class BooksCollectionFragment extends Fragment {
         });
 
         btn_retry_collections.setOnClickListener(v -> {
-            if (categoryId != null) {
-                viewModel.fetchBooksByGenre(categoryId);
+            if (sourceId != null && sourceType != null) {
+                if ("GENRE".equals(sourceType)) {
+                    viewModel.fetchBooksByGenre(sourceId);
+                } else if ("SERIES".equals(sourceType)) {
+                    viewModel.fetchBooksBySeries(sourceId);
+                }
             }
         });
     }
@@ -183,12 +199,14 @@ public class BooksCollectionFragment extends Fragment {
         int spacingInPixels = dpToPx(12, requireContext());
         int edgeSpacingInPixels = dpToPx(0, requireContext());
 
-        booksCollectionRecyclerView.addItemDecoration(new GridSpacingItemDecoration(
-                spanCount,
-                spacingInPixels,
-                false,
-                edgeSpacingInPixels
-        ));
+        if (booksCollectionRecyclerView.getItemDecorationCount() == 0) {
+            booksCollectionRecyclerView.addItemDecoration(new GridSpacingItemDecoration(
+                    spanCount,
+                    spacingInPixels,
+                    false,
+                    edgeSpacingInPixels
+            ));
+        }
 
         booksCollectionRecyclerView.setAdapter(bookAdapter);
 
