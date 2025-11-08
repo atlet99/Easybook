@@ -149,12 +149,10 @@ public class MainFragment extends Fragment {
                     clear_search.setVisibility(View.GONE);
                     categoriesHeader.setVisibility(View.VISIBLE);
                     shortCategoriesRecyclerView.setVisibility(View.VISIBLE);
-                    books_header.setVisibility(View.VISIBLE);
                 } else {
                     clear_search.setVisibility(View.VISIBLE);
                     categoriesHeader.setVisibility(View.GONE);
                     shortCategoriesRecyclerView.setVisibility(View.GONE);
-                    books_header.setVisibility(View.GONE);
                 }
 
                 searchRunnable = () -> {
@@ -369,6 +367,17 @@ public class MainFragment extends Fragment {
         mainViewModel.getBooks().observe(getViewLifecycleOwner(), books -> {
             if (books != null) {
                 bookAdapter.submitList(books);
+                boolean isSearchActive = search.getText() != null && search.getText().length() > 0;
+
+                if (isSearchActive) {
+                    if (!books.isEmpty()) {
+                        books_header.setVisibility(View.VISIBLE);
+                    } else {
+                        books_header.setVisibility(View.GONE);
+                    }
+                } else {
+                    books_header.setVisibility(View.GONE);
+                }
             }
         });
     }
