@@ -94,9 +94,10 @@ public class MainViewModel extends AndroidViewModel {
                 R.drawable.ic_category_esoteric,
                 R.drawable.ic_category_humor
         };
+        String[] categoryIds = {"1", "4", "7", "14", "22", "6", "12", "13", "21", "15", "11", "17", "18", "8", "2", "16", "20", "19", "3", "24", "10", "5", "9"};
 
         for (int i = 0; i < categoryNames.length; i++) {
-            categoryList.add(new Category(String.valueOf(i + 1), categoryNames[i], categoryIcons[i]));
+            categoryList.add(new Category(categoryIds[i], categoryNames[i], categoryIcons[i]));
         }
 
         categories.setValue(categoryList);
