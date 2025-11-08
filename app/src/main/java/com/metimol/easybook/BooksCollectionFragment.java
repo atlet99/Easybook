@@ -31,6 +31,7 @@ import java.util.List;
 
 public class BooksCollectionFragment extends Fragment {
     private MainViewModel viewModel;
+    private MainViewModel sharedViewModel;
     private BookAdapter bookAdapter;
     private RecyclerView booksCollectionRecyclerView;
     private String categoryId;
@@ -57,6 +58,7 @@ public class BooksCollectionFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        sharedViewModel = new ViewModelProvider(requireActivity()).get(MainViewModel.class);
         viewModel = new ViewModelProvider(requireActivity()).get(MainViewModel.class);
         booksCollectionRecyclerView = view.findViewById(R.id.booksCollectionRecyclerView);
         fabScrollToTop = view.findViewById(R.id.fab_scroll_to_top_collections);
@@ -74,7 +76,7 @@ public class BooksCollectionFragment extends Fragment {
         }
         ivBack.setOnClickListener(v -> NavHostFragment.findNavController(this).popBackStack());
 
-        viewModel.getStatusBarHeight().observe(getViewLifecycleOwner(), height -> {
+        sharedViewModel.getStatusBarHeight().observe(getViewLifecycleOwner(), height -> {
             collections_container.setPaddingRelative(
                     collections_container.getPaddingStart(),
                     height + dpToPx(20, context),
@@ -200,11 +202,5 @@ public class BooksCollectionFragment extends Fragment {
                 bookAdapter.submitList(books);
             }
         });
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        viewModel.resetBookList();
     }
 }
