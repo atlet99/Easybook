@@ -169,7 +169,15 @@ public class BooksCollectionFragment extends Fragment {
 
     private void setupRecyclerView() {
         bookAdapter = new BookAdapter();
-        int spanCount = 3;
+
+        int spanCount = 0;
+        RecyclerView.LayoutManager manager = booksCollectionRecyclerView.getLayoutManager();
+        if (manager instanceof GridLayoutManager) {
+            spanCount = ((GridLayoutManager) manager).getSpanCount();
+        }
+        if (spanCount == 0) {
+            spanCount = 3;
+        }
         booksCollectionRecyclerView.setLayoutManager(new GridLayoutManager(getContext(), spanCount));
 
         int spacingInPixels = dpToPx(12, requireContext());

@@ -75,23 +75,22 @@ public class CategoriesFragment extends Fragment {
                     .navigate(R.id.action_categoriesFragment_to_booksCollectionFragment, bundle);
         });
 
-        int spanCount = 0;
-
         RecyclerView.LayoutManager manager = categoriesRecyclerView.getLayoutManager();
 
+        int spanCount = 0;
         if (manager instanceof GridLayoutManager) {
             spanCount = ((GridLayoutManager) manager).getSpanCount();
         }
-
-        if (spanCount > 0) {
-            int spacing = (int) (20 * getResources().getDisplayMetrics().density);
-            boolean includeEdge = false;
-            int edgeSpacing = (int) (3 * getResources().getDisplayMetrics().density);
-
-            categoriesRecyclerView.addItemDecoration(
-                    new GridSpacingItemDecoration(spanCount, spacing, includeEdge, edgeSpacing)
-            );
+        if (spanCount == 0) {
+            spanCount = 3;
         }
+        int spacing = (int) (20 * getResources().getDisplayMetrics().density);
+        boolean includeEdge = false;
+        int edgeSpacing = (int) (3 * getResources().getDisplayMetrics().density);
+
+        categoriesRecyclerView.addItemDecoration(
+                new GridSpacingItemDecoration(spanCount, spacing, includeEdge, edgeSpacing)
+        );
     }
 
     private void observeCategories() {
