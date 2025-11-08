@@ -29,6 +29,7 @@
     <string name="no_internet">Нет Интернета</string>
     <string name="scroll_to_top">Прокрутить вверх</string>
     <string name="found_in_series">Найдено в сериях</string>
+    <string name="found_in_books">Найдено в книгах</string>
     <string name="books_fallback">книг</string>
 
     <!--Categories Screen-->

@@ -59,6 +59,7 @@ public class MainFragment extends Fragment {
     private RecyclerView seriesRecyclerView;
     private SeriesAdapter seriesAdapter;
     private TextView seriesHeader;
+    private TextView books_header;
 
     private CardView searchCard;
     private CoordinatorLayout coordinator;
@@ -91,6 +92,7 @@ public class MainFragment extends Fragment {
 
         seriesRecyclerView = view.findViewById(R.id.seriesRecyclerView);
         seriesHeader = view.findViewById(R.id.series_header);
+        books_header = view.findViewById(R.id.books_header);
 
         ConstraintLayout clMainFragment = view.findViewById(R.id.clMainFragment);
         Button btnRetry = view.findViewById(R.id.btn_retry);
@@ -147,10 +149,12 @@ public class MainFragment extends Fragment {
                     clear_search.setVisibility(View.GONE);
                     categoriesHeader.setVisibility(View.VISIBLE);
                     shortCategoriesRecyclerView.setVisibility(View.VISIBLE);
+                    books_header.setVisibility(View.VISIBLE);
                 } else {
                     clear_search.setVisibility(View.VISIBLE);
                     categoriesHeader.setVisibility(View.GONE);
                     shortCategoriesRecyclerView.setVisibility(View.GONE);
+                    books_header.setVisibility(View.GONE);
                 }
 
                 searchRunnable = () -> {
