@@ -130,6 +130,9 @@ public class MainFragment extends Fragment {
             });
         }
 
+        categoriesHeader.setVisibility(View.GONE);
+        shortCategoriesRecyclerView.setVisibility(View.GONE);
+
         clear_search.setOnClickListener(v -> search.setText(""));
         nav_item1.setOnClickListener(v -> reloadPage());
 
@@ -149,8 +152,6 @@ public class MainFragment extends Fragment {
                 String currentText = s.toString();
                 if (currentText.isEmpty()) {
                     clear_search.setVisibility(View.GONE);
-                    categoriesHeader.setVisibility(View.VISIBLE);
-                    shortCategoriesRecyclerView.setVisibility(View.VISIBLE);
                 } else {
                     clear_search.setVisibility(View.VISIBLE);
                     categoriesHeader.setVisibility(View.GONE);
@@ -225,6 +226,8 @@ public class MainFragment extends Fragment {
 
             if (isLoading && isListEmpty) {
                 requireView().findViewById(R.id.progressBar).setVisibility(View.VISIBLE);
+                categoriesHeader.setVisibility(View.GONE);
+                shortCategoriesRecyclerView.setVisibility(View.GONE);
             } else {
                 requireView().findViewById(R.id.progressBar).setVisibility(View.GONE);
             }
@@ -326,6 +329,8 @@ public class MainFragment extends Fragment {
                 seriesHeader.setVisibility(View.GONE);
                 seriesRecyclerView.setVisibility(View.GONE);
             }
+
+            updateNotFoundState();
         });
     }
 
@@ -374,26 +379,50 @@ public class MainFragment extends Fragment {
                 if (isSearchActive) {
                     if (books.isEmpty()) {
                         books_header.setVisibility(View.GONE);
-                        not_found_view.setVisibility(View.VISIBLE);
                         booksRecyclerView.setVisibility(View.GONE);
                     } else {
                         books_header.setVisibility(View.VISIBLE);
-                        not_found_view.setVisibility(View.GONE);
                         booksRecyclerView.setVisibility(View.VISIBLE);
                     }
                 } else {
                     books_header.setVisibility(View.GONE);
-                    not_found_view.setVisibility(View.GONE);
                     booksRecyclerView.setVisibility(View.VISIBLE);
                 }
+
+                updateNotFoundState();
             }
         });
+    }
+
+    private void updateNotFoundState() {
+        boolean isSearchActive = search.getText().length() > 0;
+
+        if (isSearchActive) {
+            List<?> books = mainViewModel.getBooks().getValue();
+            List<?> series = mainViewModel.getSeries().getValue();
+
+            boolean isBooksEmpty = (books == null || books.isEmpty());
+            boolean isSeriesEmpty = (series == null || series.isEmpty());
+
+            if (isBooksEmpty && isSeriesEmpty) {
+                not_found_view.setVisibility(View.VISIBLE);
+            } else {
+                not_found_view.setVisibility(View.GONE);
+            }
+        } else {
+            not_found_view.setVisibility(View.GONE);
+        }
     }
 
     private void showContent() {
         searchCard.setVisibility(View.VISIBLE);
         coordinator.setVisibility(View.VISIBLE);
         noInternetView.setVisibility(View.GONE);
+
+        if (search.getText().length() == 0) {
+            categoriesHeader.setVisibility(View.VISIBLE);
+            shortCategoriesRecyclerView.setVisibility(View.VISIBLE);
+        }
     }
 
     private void showErrorView() {
