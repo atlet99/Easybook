@@ -68,4 +68,13 @@
 
     <!--Collection Screen-->
     <string name="collection_title">Заголовок коллекции</string>
+
+    <!--Book info Screen-->
+    <string name="download">Скачать</string>
+    <string name="add_to_bookmarks">Добавить книгу в закладки</string>
+    <string name="could_not_load_book">Не удалось загрузить книгу</string>
+    <string name="info">Информация</string>
+    <string name="episodes">Эпизоды</string>
+    <string name="author">Автор:</string>
+    <string name="reader">Чтец:</string>
 </resources>

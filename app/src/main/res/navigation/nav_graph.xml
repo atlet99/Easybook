@@ -43,6 +43,14 @@
             app:exitAnim="@anim/slide_out_left"
             app:popEnterAnim="@anim/slide_in_left"
             app:popExitAnim="@anim/slide_out_right" />
+        <action
+            android:id="@+id/action_mainFragment_to_bookInfoFragment"
+            app:destination="@id/bookInfoFragment"
+
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right"/>
     </fragment>
 
     <fragment
@@ -71,6 +79,24 @@
         <argument
             android:name="categoryName"
             app:argType="string" />
+        <action
+            android:id="@+id/action_booksCollectionFragment_to_bookInfoFragment"
+            app:destination="@id/bookInfoFragment"
+
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right"/>
+    </fragment>
+
+    <fragment
+        android:id="@+id/bookInfoFragment"
+        android:name="com.metimol.easybook.BookInfoFragment"
+        android:label="BookInfoFragment"
+        tools:layout="@layout/fragment_book_details">
+            <argument
+                android:name="bookId"
+                app:argType="string" />
     </fragment>
 
 </navigation>
