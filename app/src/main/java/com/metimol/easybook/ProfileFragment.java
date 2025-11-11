@@ -1,7 +1,6 @@
 package com.metimol.easybook;
 
 import static com.metimol.easybook.MainActivity.APP_PREFERENCES;
-import static com.metimol.easybook.MainActivity.dpToPx;
 
 import android.content.Context;
 import android.content.SharedPreferences;
