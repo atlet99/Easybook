@@ -80,4 +80,8 @@
     <string name="author">Автор:</string>
     <string name="reader">Чтец:</string>
     <string name="duration">Длительность:</string>
+
+    <!--Profile Screen-->
+    <string name="edit">Редактировать</string>
+    <string name="default_username">Пользователь</string>
 </resources>

@@ -5,10 +5,13 @@ import static com.metimol.easybook.MainActivity.dpToPx;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -19,6 +22,11 @@ import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 
 public class ProfileFragment extends Fragment {
+    public static final String USERNAME_KEY = "username";
+    public static final String AVATAR_KEY = "avatar";
+    private SharedPreferences sharedPreferences;
+    private Context context;
+
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_profile, container, false);
@@ -28,8 +36,8 @@ public class ProfileFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        Context context = requireContext();
-        SharedPreferences sharedPreferences = context.getSharedPreferences(APP_PREFERENCES, Context.MODE_PRIVATE);
+        context = requireContext();
+        sharedPreferences = context.getSharedPreferences(APP_PREFERENCES, Context.MODE_PRIVATE);
         NavController navController = NavHostFragment.findNavController(this);
 
         MainViewModel mainViewModel = new ViewModelProvider(requireActivity()).get(MainViewModel.class);
@@ -46,5 +54,21 @@ public class ProfileFragment extends Fragment {
         });
 
         nav_main.setOnClickListener(v -> navController.navigate(R.id.action_profileFragment_to_mainFragment));
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        ImageView avatar = requireView().findViewById(R.id.userAvatar);
+        TextView username = requireView().findViewById(R.id.userName);
+
+        if (sharedPreferences.getString(AVATAR_KEY, "").isEmpty()) {
+            avatar.setImageResource(R.drawable.ic_default_avatar);
+        } else {
+            avatar.setImageURI(Uri.parse(sharedPreferences.getString(AVATAR_KEY, "")));
+        }
+
+        username.setText(sharedPreferences.getString(USERNAME_KEY, ""));
     }
 }
