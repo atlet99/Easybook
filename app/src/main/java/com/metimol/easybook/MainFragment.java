@@ -100,7 +100,7 @@ public class MainFragment extends Fragment {
         Button btnRetry = view.findViewById(R.id.btn_retry);
         ImageView clear_search = view.findViewById(R.id.clear_search);
         TextView viewCategories = view.findViewById(R.id.viewCategories);
-        ConstraintLayout nav_item1 = view.findViewById(R.id.nav_item1);
+        ConstraintLayout nav_main = view.findViewById(R.id.nav_main);
 
         Context context = requireContext();
         SharedPreferences sharedPreferences = context.getSharedPreferences(APP_PREFERENCES, Context.MODE_PRIVATE);
@@ -134,7 +134,7 @@ public class MainFragment extends Fragment {
         shortCategoriesRecyclerView.setVisibility(View.GONE);
 
         clear_search.setOnClickListener(v -> search.setText(""));
-        nav_item1.setOnClickListener(v -> reloadPage());
+        nav_main.setOnClickListener(v -> reloadPage());
 
         search.addTextChangedListener(new TextWatcher() {
             @Override

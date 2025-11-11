@@ -14,8 +14,10 @@
     <string name="have_a_good_day">Готовы к новой истории?</string>
     <string name="women_listen_audiobook">Женщина слушает аудиокнигу</string>
     <string name="discover">Обзор</string>
+    <string name="player">Плеер</string>
+    <string name="player_icon">Иконка плеера</string>
+    <string name="profile_icon">Иконка профиля</string>
     <string name="globe_icon">Иконка глобуса</string>
-    <string name="collection">Коллекция</string>
     <string name="profile">Профиль</string>
     <string name="search_icon">Иконка поиска</string>
     <string name="search">Поиск книг или циклов</string>
