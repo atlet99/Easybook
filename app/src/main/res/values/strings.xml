@@ -70,6 +70,7 @@
 
     <!--Collection Screen-->
     <string name="collection_title">Заголовок коллекции</string>
+    <string name="collection_is_empty_title">Здесь пока пусто</string>
 
     <!--Book info Screen-->
     <string name="download">Скачать</string>

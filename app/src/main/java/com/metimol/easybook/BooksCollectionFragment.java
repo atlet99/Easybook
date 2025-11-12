@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -35,6 +36,8 @@ public class BooksCollectionFragment extends Fragment {
     private RecyclerView booksCollectionRecyclerView;
     private FloatingActionButton fabScrollToTop;
     private View no_internet_view_collections;
+    private View empty_collection_view;
+    private ProgressBar progressBar;
 
     private String sourceId;
     private String sourceName;
@@ -46,9 +49,10 @@ public class BooksCollectionFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
+            // Check for new FAVORITES type
             if ("FAVORITES".equals(getArguments().getString("sourceType"))) {
                 sourceType = "FAVORITES";
-                sourceName = getString(R.string.bookmarks); // Use string resource
+                sourceName = getString(R.string.bookmarks);
             } else if (getArguments().containsKey("categoryId")) {
                 sourceType = "GENRE";
                 sourceId = getArguments().getString("categoryId");
@@ -76,6 +80,8 @@ public class BooksCollectionFragment extends Fragment {
         booksCollectionRecyclerView = view.findViewById(R.id.booksCollectionRecyclerView);
         fabScrollToTop = view.findViewById(R.id.fab_scroll_to_top_collections);
         no_internet_view_collections = view.findViewById(R.id.no_internet_view_collections);
+        empty_collection_view = view.findViewById(R.id.empty_collection_view);
+        progressBar = view.findViewById(R.id.progressBarCollections);
 
         ImageView ivBack = view.findViewById(R.id.iv_collection_back);
         TextView tvTitle = view.findViewById(R.id.textViewCollectionTitle);
@@ -106,18 +112,22 @@ public class BooksCollectionFragment extends Fragment {
             boolean isListEmpty = (currentBooks == null || currentBooks.isEmpty());
 
             if (isLoading && isListEmpty) {
-                requireView().findViewById(R.id.progressBarCollections).setVisibility(View.VISIBLE);
+                progressBar.setVisibility(View.VISIBLE);
+                booksCollectionRecyclerView.setVisibility(View.GONE);
+                no_internet_view_collections.setVisibility(View.GONE);
+                empty_collection_view.setVisibility(View.GONE);
             } else {
-                requireView().findViewById(R.id.progressBarCollections).setVisibility(View.GONE);
+                progressBar.setVisibility(View.GONE);
             }
 
             if (!isLoading) {
-                Boolean isError = viewModel.getLoadError().getValue();
-                if (isError != null && isError) {
-                    showErrorView();
-                } else {
-                    showContent();
-                }
+                updateVisibility();
+            }
+        });
+
+        viewModel.getLoadError().observe(getViewLifecycleOwner(), isError -> {
+            if (!viewModel.getIsLoading().getValue()) {
+                updateVisibility();
             }
         });
 
@@ -185,14 +195,29 @@ public class BooksCollectionFragment extends Fragment {
         });
     }
 
-    private void showErrorView() {
-        no_internet_view_collections.setVisibility(View.VISIBLE);
-        booksCollectionRecyclerView.setVisibility(View.GONE);
-    }
+    private void updateVisibility() {
+        if (Boolean.TRUE.equals(viewModel.getIsLoading().getValue()) &&
+                (viewModel.getBooks().getValue() == null || viewModel.getBooks().getValue().isEmpty())) {
+            return;
+        }
 
-    private void showContent() {
-        no_internet_view_collections.setVisibility(View.GONE);
-        booksCollectionRecyclerView.setVisibility(View.VISIBLE);
+        Boolean isError = viewModel.getLoadError().getValue();
+        List<Book> currentBooks = viewModel.getBooks().getValue();
+        boolean isListEmpty = (currentBooks == null || currentBooks.isEmpty());
+
+        if (isError != null && isError) {
+            no_internet_view_collections.setVisibility(View.VISIBLE);
+            booksCollectionRecyclerView.setVisibility(View.GONE);
+            empty_collection_view.setVisibility(View.GONE);
+        } else if (isListEmpty) {
+            no_internet_view_collections.setVisibility(View.GONE);
+            booksCollectionRecyclerView.setVisibility(View.GONE);
+            empty_collection_view.setVisibility(View.VISIBLE);
+        } else {
+            no_internet_view_collections.setVisibility(View.GONE);
+            booksCollectionRecyclerView.setVisibility(View.VISIBLE);
+            empty_collection_view.setVisibility(View.GONE);
+        }
     }
 
     private void setupRecyclerView() {
@@ -251,6 +276,7 @@ public class BooksCollectionFragment extends Fragment {
             if (books != null) {
                 bookAdapter.submitList(books);
             }
+            updateVisibility();
         });
     }
 }
