@@ -53,6 +53,9 @@ public interface AudiobookDao {
     @Query("SELECT * FROM books WHERE isFavorite = 1")
     LiveData<List<Book>> getFavoriteBooks();
 
+    @Query("SELECT * FROM books WHERE isFavorite = 1")
+    List<Book> getFavoriteBooksList();
+
     @Query("SELECT * FROM books WHERE isFinished = 0 AND currentTimestamp > 0 ORDER BY lastListened DESC")
     LiveData<List<Book>> getBooksToContinue();
 

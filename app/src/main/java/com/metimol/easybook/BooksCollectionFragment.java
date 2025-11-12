@@ -40,11 +40,16 @@ public class BooksCollectionFragment extends Fragment {
     private String sourceName;
     private String sourceType;
 
+    private boolean isPaginationEnabled = false;
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            if (getArguments().containsKey("categoryId")) {
+            if ("FAVORITES".equals(getArguments().getString("sourceType"))) {
+                sourceType = "FAVORITES";
+                sourceName = getString(R.string.bookmarks); // Use string resource
+            } else if (getArguments().containsKey("categoryId")) {
                 sourceType = "GENRE";
                 sourceId = getArguments().getString("categoryId");
                 sourceName = getArguments().getString("categoryName");
@@ -116,11 +121,16 @@ public class BooksCollectionFragment extends Fragment {
             }
         });
 
-        if (sourceId != null && sourceType != null) {
+        if (sourceType != null) {
             if ("GENRE".equals(sourceType)) {
+                isPaginationEnabled = true;
                 viewModel.fetchBooksByGenre(sourceId);
             } else if ("SERIES".equals(sourceType)) {
+                isPaginationEnabled = true;
                 viewModel.fetchBooksBySeries(sourceId);
+            } else if ("FAVORITES".equals(sourceType)) {
+                isPaginationEnabled = false;
+                viewModel.fetchFavoriteBooksFromApi();
             }
         }
 
@@ -163,11 +173,13 @@ public class BooksCollectionFragment extends Fragment {
         });
 
         btn_retry_collections.setOnClickListener(v -> {
-            if (sourceId != null && sourceType != null) {
+            if (sourceType != null) {
                 if ("GENRE".equals(sourceType)) {
                     viewModel.fetchBooksByGenre(sourceId);
                 } else if ("SERIES".equals(sourceType)) {
                     viewModel.fetchBooksBySeries(sourceId);
+                } else if ("FAVORITES".equals(sourceType)) {
+                    viewModel.fetchFavoriteBooksFromApi();
                 }
             }
         });
@@ -221,6 +233,11 @@ public class BooksCollectionFragment extends Fragment {
             @Override
             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
+
+                if (!isPaginationEnabled) {
+                    return;
+                }
+
                 GridLayoutManager layoutManager = (GridLayoutManager) recyclerView.getLayoutManager();
                 if (layoutManager != null && layoutManager.findLastCompletelyVisibleItemPosition() == bookAdapter.getItemCount() - 1) {
                     viewModel.loadMoreBooks();

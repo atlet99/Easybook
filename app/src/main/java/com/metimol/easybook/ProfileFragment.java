@@ -45,6 +45,7 @@ public class ProfileFragment extends Fragment {
         TextView editInfo = view.findViewById(R.id.edit_info);
         ConstraintLayout share = view.findViewById(R.id.share);
         ConstraintLayout rateUs = view.findViewById(R.id.rateUs);
+        ConstraintLayout bookmarks = view.findViewById(R.id.bookmarks);
 
         mainViewModel.getStatusBarHeight().observe(getViewLifecycleOwner(), height -> {
             profile_container.setPaddingRelative(
@@ -59,6 +60,12 @@ public class ProfileFragment extends Fragment {
         editInfo.setOnClickListener(v -> navController.navigate(R.id.action_profileFragment_to_EditProfileFragment));
         share.setOnClickListener(v -> shareInfo(context, getString(R.string.share_text)));
         rateUs.setOnClickListener(v -> startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/metimol/Easybook"))));
+
+        bookmarks.setOnClickListener(v -> {
+            Bundle bundle = new Bundle();
+            bundle.putString("sourceType", "FAVORITES");
+            navController.navigate(R.id.action_profileFragment_to_booksCollectionFragment, bundle);
+        });
     }
 
     @Override
