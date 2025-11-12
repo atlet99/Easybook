@@ -87,4 +87,6 @@
     <string name="settings">Настройки</string>
     <string name="share">Поделится приложением</string>
     <string name="rateUs">Оцените нас</string>
+    <string name="bookmarks">Закладки</string>
+    <string name="listened">Прослушано</string>
 </resources>
