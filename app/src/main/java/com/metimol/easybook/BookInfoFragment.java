@@ -3,6 +3,7 @@ package com.metimol.easybook;
 import static com.metimol.easybook.MainActivity.dpToPx;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -17,6 +18,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.content.ContextCompat;
+import androidx.core.widget.ImageViewCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.fragment.NavHostFragment;
@@ -127,9 +130,13 @@ public class BookInfoFragment extends Fragment {
     private void observeFavoriteStatus() {
         viewModel.getIsBookFavorite(bookID).observe(getViewLifecycleOwner(), isFavorite -> {
             if (isFavorite != null && isFavorite) {
+                int activeColor = ContextCompat.getColor(requireContext(), R.color.green);
                 ivAddBookToBookmarks.setImageResource(R.drawable.ic_bookmark_added);
+                ImageViewCompat.setImageTintList(ivAddBookToBookmarks, ColorStateList.valueOf(activeColor));
             } else {
+                int notActiveColor = ContextCompat.getColor(requireContext(), R.color.black);
                 ivAddBookToBookmarks.setImageResource(R.drawable.ic_bookmark);
+                ImageViewCompat.setImageTintList(ivAddBookToBookmarks, ColorStateList.valueOf(notActiveColor));
             }
         });
     }

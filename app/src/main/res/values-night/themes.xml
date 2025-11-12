@@ -11,13 +11,13 @@
         <item name="android:windowLightStatusBar">@bool/is_light_theme</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
-        <item name="android:enforceNavigationBarContrast" >false</item>
-        <item name="android:enforceStatusBarContrast" >false</item>
+        <item name="android:enforceNavigationBarContrast">false</item>
+        <item name="android:enforceStatusBarContrast">false</item>
 
         <item name="backgroundColor">@color/white</item>
         <item name="textColor">@color/black</item>
 
     </style>
 
-    <bool name="is_light_theme">true</bool>
+    <bool name="is_light_theme">false</bool>
 </resources>

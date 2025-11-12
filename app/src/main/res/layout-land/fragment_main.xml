@@ -147,7 +147,8 @@
                 android:layout_height="25dp"
                 android:contentDescription="@string/search_icon"
                 android:src="@drawable/ic_search"
-                android:layout_marginEnd="8dp"/>
+                android:layout_marginEnd="8dp"
+                app:tint="@color/black" />
             <EditText
                 android:id="@+id/search"
                 android:layout_width="0dp"
@@ -168,7 +169,8 @@
                 android:clickable="true"
                 android:focusable="true"
                 android:visibility="gone"
-                tools:visibility="visible"/>
+                tools:visibility="visible"
+                app:tint="@color/black" />
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 
