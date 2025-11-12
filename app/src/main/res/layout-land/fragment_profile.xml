@@ -146,6 +146,8 @@
         android:textColor="@color/black"
         android:textSize="24sp"
         android:textStyle="bold"
+        android:maxLines="1"
+        android:ellipsize="end"
         app:layout_constraintEnd_toEndOf="@id/userAvatar"
         app:layout_constraintStart_toStartOf="@id/userAvatar"
         app:layout_constraintTop_toBottomOf="@id/userAvatar"
@@ -178,21 +180,121 @@
         app:layout_constraintBottom_toBottomOf="@id/userName">
 
         <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/bookmarks"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="15dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?attr/selectableItemBackground"
+            app:layout_constraintTop_toBottomOf="@id/userName"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginTop="20dp">
+
+            <ImageView
+                android:id="@+id/ivBookmarks"
+                android:layout_width="34dp"
+                android:layout_height="34dp"
+                android:src="@drawable/ic_bookmark"
+                android:background="@drawable/green_circle_background"
+                android:padding="3dp"
+                app:tint="@color/dark_blue"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/tvBookmarks"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/sf_pro"
+                android:textColor="@color/black"
+                android:textSize="18sp"
+                android:textStyle="normal"
+                android:text="@string/bookmarks"
+                android:layout_marginStart="10dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toEndOf="@id/ivBookmarks"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <ImageView
+                android:layout_width="30dp"
+                android:layout_height="21dp"
+                android:src="@drawable/ic_arrow_right"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/listened"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="15dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?attr/selectableItemBackground"
+            app:layout_constraintTop_toBottomOf="@id/bookmarks"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginTop="20dp">
+
+            <ImageView
+                android:id="@+id/ivListened"
+                android:layout_width="34dp"
+                android:layout_height="34dp"
+                android:src="@drawable/ic_reader"
+                android:background="@drawable/green_circle_background"
+                android:padding="6dp"
+                app:tint="@color/dark_blue"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/tvListened"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/sf_pro"
+                android:textColor="@color/black"
+                android:textSize="18sp"
+                android:textStyle="normal"
+                android:text="@string/listened"
+                android:layout_marginStart="10dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toEndOf="@id/ivListened"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <ImageView
+                android:layout_width="30dp"
+                android:layout_height="21dp"
+                android:src="@drawable/ic_arrow_right"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/settings"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginHorizontal="15dp"
             android:clickable="true"
             android:focusable="true"
-            android:paddingVertical="8dp"
-            android:foreground="?attr/selectableItemBackground">
+            android:foreground="?attr/selectableItemBackground"
+            app:layout_constraintTop_toBottomOf="@id/listened"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginTop="20dp">
 
             <ImageView
                 android:id="@+id/ivSettings"
                 android:layout_width="34dp"
                 android:layout_height="34dp"
+                android:src="@drawable/ic_settings"
                 android:background="@drawable/green_circle_background"
                 android:padding="2dp"
-                android:src="@drawable/ic_settings"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -201,12 +303,12 @@
                 android:id="@+id/tvSettings"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
                 android:fontFamily="@font/sf_pro"
-                android:text="@string/settings"
                 android:textColor="@color/black"
                 android:textSize="18sp"
                 android:textStyle="normal"
+                android:text="@string/settings"
+                android:layout_marginStart="10dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toEndOf="@id/ivSettings"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -224,19 +326,22 @@
             android:id="@+id/share"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            android:layout_marginHorizontal="15dp"
             android:clickable="true"
-            android:paddingVertical="8dp"
             android:focusable="true"
-            android:foreground="?attr/selectableItemBackground">
+            android:foreground="?attr/selectableItemBackground"
+            app:layout_constraintTop_toBottomOf="@id/settings"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginTop="20dp">
 
             <ImageView
                 android:id="@+id/ivShare"
                 android:layout_width="34dp"
                 android:layout_height="34dp"
+                android:src="@drawable/ic_share"
                 android:background="@drawable/green_circle_background"
                 android:padding="5dp"
-                android:src="@drawable/ic_share"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -245,12 +350,12 @@
                 android:id="@+id/tvShare"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
                 android:fontFamily="@font/sf_pro"
-                android:text="@string/share"
                 android:textColor="@color/black"
                 android:textSize="18sp"
                 android:textStyle="normal"
+                android:text="@string/share"
+                android:layout_marginStart="10dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toEndOf="@id/ivShare"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -268,19 +373,22 @@
             android:id="@+id/rateUs"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:paddingVertical="8dp"
+            android:layout_marginHorizontal="15dp"
             android:clickable="true"
             android:focusable="true"
-            android:foreground="?attr/selectableItemBackground">
+            android:foreground="?attr/selectableItemBackground"
+            app:layout_constraintTop_toBottomOf="@id/share"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginTop="20dp">
 
             <ImageView
                 android:id="@+id/ivRateUs"
                 android:layout_width="34dp"
                 android:layout_height="34dp"
+                android:src="@drawable/ic_rate_us"
                 android:background="@drawable/green_circle_background"
                 android:padding="5dp"
-                android:src="@drawable/ic_rate_us"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -289,12 +397,12 @@
                 android:id="@+id/tvRateUs"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
                 android:fontFamily="@font/sf_pro"
-                android:text="@string/rateUs"
                 android:textColor="@color/black"
                 android:textSize="18sp"
                 android:textStyle="normal"
+                android:text="@string/rateUs"
+                android:layout_marginStart="10dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toEndOf="@id/ivRateUs"
                 app:layout_constraintTop_toTopOf="parent" />
