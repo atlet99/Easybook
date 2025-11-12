@@ -24,7 +24,6 @@ public class ProfileFragment extends Fragment {
     public static final String USERNAME_KEY = "username";
     public static final String AVATAR_KEY = "avatar";
     private SharedPreferences sharedPreferences;
-    private Context context;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -35,13 +34,14 @@ public class ProfileFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        context = requireContext();
+        Context context = requireContext();
         sharedPreferences = context.getSharedPreferences(APP_PREFERENCES, Context.MODE_PRIVATE);
         NavController navController = NavHostFragment.findNavController(this);
 
         MainViewModel mainViewModel = new ViewModelProvider(requireActivity()).get(MainViewModel.class);
         ConstraintLayout profile_container = view.findViewById(R.id.profile_container);
         ConstraintLayout nav_main = view.findViewById(R.id.nav_main);
+        TextView editInfo = view.findViewById(R.id.edit_info);
 
         mainViewModel.getStatusBarHeight().observe(getViewLifecycleOwner(), height -> {
             profile_container.setPaddingRelative(
@@ -53,6 +53,8 @@ public class ProfileFragment extends Fragment {
         });
 
         nav_main.setOnClickListener(v -> navController.navigate(R.id.action_profileFragment_to_mainFragment));
+
+        editInfo.setOnClickListener(v -> navController.navigate(R.id.action_profileFragment_to_EditProfileFragment));
     }
 
     @Override

@@ -89,4 +89,9 @@
     <string name="rateUs">Оцените нас</string>
     <string name="bookmarks">Закладки</string>
     <string name="listened">Прослушано</string>
+
+    <!--Profile Screen-->
+    <string name="information_account">Информация</string>
+    <string name="save">Сохранить</string>
+    <string name="full_name">Имя пользователя</string>
 </resources>
