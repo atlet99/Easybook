@@ -11,13 +11,13 @@
         android:id="@+id/navigation_rail"
         android:layout_width="wrap_content"
         android:layout_height="0dp"
+        android:elevation="4dp"
         android:paddingHorizontal="5dp"
         android:paddingVertical="20dp"
-        android:background="@android:color/white"
-        android:elevation="4dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/nav_main"
@@ -25,30 +25,30 @@
             android:layout_height="wrap_content"
             android:clickable="true"
             android:focusable="true"
-            app:layout_constraintVertical_chainStyle="spread_inside"
-            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toTopOf="@id/nav_player"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent">
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_chainStyle="spread_inside">
 
             <ImageView
                 android:id="@+id/iv_main"
                 android:layout_width="20dp"
                 android:layout_height="20dp"
+                android:contentDescription="@string/globe_icon"
                 android:src="@drawable/ic_globe"
-                app:tint="@color/green"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                android:contentDescription="@string/globe_icon" />
+                app:tint="@color/green" />
 
             <TextView
                 android:id="@+id/tv_main"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:fontFamily="@font/sf_pro"
                 android:text="@string/discover"
                 android:textColor="@color/green"
-                android:fontFamily="@font/sf_pro"
                 android:textSize="15sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -61,28 +61,28 @@
             android:layout_height="wrap_content"
             android:clickable="true"
             android:focusable="true"
-            app:layout_constraintTop_toBottomOf="@id/nav_main"
             app:layout_constraintBottom_toTopOf="@id/nav_profile"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent">
+            app:layout_constraintTop_toBottomOf="@id/nav_main">
 
             <ImageView
                 android:id="@+id/iv_player"
                 android:layout_width="20dp"
                 android:layout_height="20dp"
+                android:contentDescription="@string/globe_icon"
                 android:src="@drawable/ic_player_icon"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                android:contentDescription="@string/globe_icon" />
+                app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
                 android:id="@+id/tv_player"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:fontFamily="@font/sf_pro"
                 android:text="@string/player"
                 android:textColor="@color/light_grey"
-                android:fontFamily="@font/sf_pro"
                 android:textSize="15sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -95,28 +95,28 @@
             android:layout_height="wrap_content"
             android:clickable="true"
             android:focusable="true"
-            app:layout_constraintTop_toBottomOf="@id/nav_player"
             app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent">
+            app:layout_constraintTop_toBottomOf="@id/nav_player">
 
             <ImageView
                 android:id="@+id/iv_profile"
                 android:layout_width="20dp"
                 android:layout_height="20dp"
+                android:contentDescription="@string/globe_icon"
                 android:src="@drawable/ic_profile"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                android:contentDescription="@string/globe_icon" />
+                app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
                 android:id="@+id/tv_profile"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:fontFamily="@font/sf_pro"
                 android:text="@string/profile"
                 android:textColor="@color/light_grey"
-                android:fontFamily="@font/sf_pro"
                 android:textSize="15sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
