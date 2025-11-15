@@ -17,6 +17,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.cardview.widget.CardView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
 import androidx.core.widget.ImageViewCompat;
@@ -32,6 +33,7 @@ import com.google.android.material.tabs.TabLayout;
 import com.metimol.easybook.adapter.EpisodeAdapter;
 import com.metimol.easybook.api.models.Author;
 import com.metimol.easybook.api.models.Book;
+import com.metimol.easybook.api.models.Serie;
 
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
@@ -49,6 +51,10 @@ public class BookInfoFragment extends Fragment {
     private EpisodeAdapter episodeAdapter;
 
     private ImageView ivAddBookToBookmarks;
+
+    private CardView bookSeriesCard;
+    private TextView bookSeriesName;
+    private TextView bookSeriesCount;
 
     private boolean isCurrentlyFinished = false;
 
@@ -87,6 +93,10 @@ public class BookInfoFragment extends Fragment {
         infoContentScroll = view.findViewById(R.id.info_content_scroll);
         episodesRecycler = view.findViewById(R.id.episodes_recycler);
         ivAddBookToBookmarks = view.findViewById(R.id.iv_add_book_to_bookmarks);
+
+        bookSeriesCard = view.findViewById(R.id.book_series_card);
+        bookSeriesName = view.findViewById(R.id.book_series_name);
+        bookSeriesCount = view.findViewById(R.id.book_series_count);
 
         progressDrawable = new CircularProgressDrawable(requireContext());
         Context context = requireContext();
@@ -217,6 +227,34 @@ public class BookInfoFragment extends Fragment {
             bookDescription.setVisibility(View.VISIBLE);
         } else {
             bookDescription.setVisibility(View.GONE);
+        }
+
+        Serie serie = book.getSerie();
+        if (serie != null) {
+            bookSeriesCard.setVisibility(View.VISIBLE);
+            bookSeriesName.setText(serie.getName());
+
+            String booksCountText;
+            try {
+                booksCountText = getResources().getQuantityString(
+                        R.plurals.books_count, serie.getBooksCount(), serie.getBooksCount()
+                );
+            } catch (Exception e) {
+                booksCountText = serie.getBooksCount() + " " + getString(R.string.books_fallback);
+            }
+            bookSeriesCount.setText(booksCountText);
+
+            bookSeriesCard.setOnClickListener(v -> {
+                Bundle bundle = new Bundle();
+                bundle.putString("sourceType", "SERIES");
+                bundle.putString("sourceId", serie.getId());
+                bundle.putString("sourceName", serie.getName());
+                NavHostFragment.findNavController(this)
+                        .navigate(R.id.action_bookInfoFragment_to_booksCollectionFragment, bundle);
+            });
+
+        } else {
+            bookSeriesCard.setVisibility(View.GONE);
         }
 
         Glide.with(requireContext())
