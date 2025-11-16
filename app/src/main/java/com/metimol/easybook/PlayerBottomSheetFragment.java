@@ -12,6 +12,8 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.cardview.widget.CardView;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.swiperefreshlayout.widget.CircularProgressDrawable;
 
@@ -34,10 +36,13 @@ public class PlayerBottomSheetFragment extends BottomSheetDialogFragment {
     private TextView tvEpisodeTitle, tvBookAuthor, tvCurrentTime, tvTotalTime;
     private SeekBar playerSeekBar;
     private FloatingActionButton btnPlayPause;
-    private ImageView btnPrev, btnNext;
+    private CardView btnPrevCard, btnNextCard;
 
     private CircularProgressDrawable progressDrawable;
     private boolean isUserSeeking = false;
+
+    private ConstraintLayout playerContentGroup;
+    private View emptyPlayerView;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -68,16 +73,48 @@ public class PlayerBottomSheetFragment extends BottomSheetDialogFragment {
         tvTotalTime = view.findViewById(R.id.tv_total_time);
         playerSeekBar = view.findViewById(R.id.player_seek_bar);
         btnPlayPause = view.findViewById(R.id.btn_play_pause);
-        btnPrev = view.findViewById(R.id.btn_prev);
-        btnNext = view.findViewById(R.id.btn_next);
+        btnPrevCard = view.findViewById(R.id.btn_prev_card);
+        btnNextCard = view.findViewById(R.id.btn_next_card);
+        playerContentGroup = view.findViewById(R.id.player_content_group);
+        emptyPlayerView = view.findViewById(R.id.empty_player_view);
 
         setupClickListeners();
 
         viewModel.getPlaybackService().observe(getViewLifecycleOwner(), service -> {
-            if (service == null) return;
+            if (service == null) {
+                playerContentGroup.setVisibility(View.GONE);
+                emptyPlayerView.setVisibility(View.VISIBLE);
+                return;
+            }
             this.playbackService = service;
             observeServiceLiveData();
+            updateInitialUIState();
         });
+    }
+
+    private void updateInitialUIState() {
+        if (playbackService == null) {
+            playerContentGroup.setVisibility(View.GONE);
+            emptyPlayerView.setVisibility(View.VISIBLE);
+            return;
+        }
+
+        Book currentBook = playbackService.currentBook.getValue();
+        if (currentBook == null) {
+            playerContentGroup.setVisibility(View.GONE);
+            emptyPlayerView.setVisibility(View.VISIBLE);
+        } else {
+            playerContentGroup.setVisibility(View.VISIBLE);
+            emptyPlayerView.setVisibility(View.GONE);
+
+            updateBookUI(currentBook);
+            updateChapterUI(playbackService.currentChapter.getValue());
+            updatePlayPauseButton(Boolean.TRUE.equals(playbackService.isPlaying.getValue()));
+            updateDurationUI(playbackService.totalDuration.getValue() != null ? playbackService.totalDuration.getValue() : 0L);
+            updateProgressUI(playbackService.currentPosition.getValue() != null ? playbackService.currentPosition.getValue() : 0L);
+            btnNextCard.setVisibility(Boolean.TRUE.equals(playbackService.hasNext.getValue()) ? View.VISIBLE : View.INVISIBLE);
+            btnPrevCard.setVisibility(Boolean.TRUE.equals(playbackService.hasPrevious.getValue()) ? View.VISIBLE : View.INVISIBLE);
+        }
     }
 
     private void setupClickListeners() {
@@ -87,13 +124,13 @@ public class PlayerBottomSheetFragment extends BottomSheetDialogFragment {
             }
         });
 
-        btnNext.setOnClickListener(v -> {
+        btnNextCard.setOnClickListener(v -> {
             if (playbackService != null) {
                 playbackService.skipToNext();
             }
         });
 
-        btnPrev.setOnClickListener(v -> {
+        btnPrevCard.setOnClickListener(v -> {
             if (playbackService != null) {
                 playbackService.skipToPrevious();
             }
@@ -123,11 +160,22 @@ public class PlayerBottomSheetFragment extends BottomSheetDialogFragment {
     }
 
     private void observeServiceLiveData() {
-        playbackService.currentBook.observe(getViewLifecycleOwner(), this::updateBookUI);
+        playbackService.currentBook.observe(getViewLifecycleOwner(), book -> {
+            if (book == null) {
+                playerContentGroup.setVisibility(View.GONE);
+                emptyPlayerView.setVisibility(View.VISIBLE);
+            } else {
+                playerContentGroup.setVisibility(View.VISIBLE);
+                emptyPlayerView.setVisibility(View.GONE);
+                updateBookUI(book);
+            }
+        });
         playbackService.currentChapter.observe(getViewLifecycleOwner(), this::updateChapterUI);
         playbackService.isPlaying.observe(getViewLifecycleOwner(), this::updatePlayPauseButton);
         playbackService.totalDuration.observe(getViewLifecycleOwner(), this::updateDurationUI);
         playbackService.currentPosition.observe(getViewLifecycleOwner(), this::updateProgressUI);
+        playbackService.hasNext.observe(getViewLifecycleOwner(), hasNext -> btnNextCard.setVisibility(hasNext ? View.VISIBLE : View.INVISIBLE));
+        playbackService.hasPrevious.observe(getViewLifecycleOwner(), hasPrevious -> btnPrevCard.setVisibility(hasPrevious ? View.VISIBLE : View.INVISIBLE));
     }
 
     private void updateBookUI(Book book) {

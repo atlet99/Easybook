@@ -53,6 +53,8 @@ public class PlaybackService extends MediaSessionService {
     public final MutableLiveData<Boolean> isPlaying = new MutableLiveData<>(false);
     public final MutableLiveData<Long> currentPosition = new MutableLiveData<>(0L);
     public final MutableLiveData<Long> totalDuration = new MutableLiveData<>(0L);
+    public final MutableLiveData<Boolean> hasNext = new MutableLiveData<>(false);
+    public final MutableLiveData<Boolean> hasPrevious = new MutableLiveData<>(false);
 
     private final Handler progressHandler = new Handler(Looper.getMainLooper());
     private Runnable progressUpdater;
@@ -139,6 +141,9 @@ public class PlaybackService extends MediaSessionService {
                         long duration = player.getDuration();
                         totalDuration.postValue(duration > 0 ? duration : 0L);
 
+                        hasNext.postValue(player.hasNextMediaItem());
+                        hasPrevious.postValue(player.hasPreviousMediaItem());
+
                         startForeground(NOTIFICATION_ID, buildNotification());
                     }
                 }
@@ -149,6 +154,8 @@ public class PlaybackService extends MediaSessionService {
                 if (playbackState == Player.STATE_READY) {
                     long duration = player.getDuration();
                     totalDuration.postValue(duration > 0 ? duration : 0L);
+                    hasNext.postValue(player.hasNextMediaItem());
+                    hasPrevious.postValue(player.hasPreviousMediaItem());
                 } else if (playbackState == Player.STATE_ENDED) {
                     isPlaying.postValue(false);
                     stopProgressUpdater();
