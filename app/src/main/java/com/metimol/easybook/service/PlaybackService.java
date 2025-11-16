@@ -14,13 +14,17 @@ import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
 import androidx.core.app.NotificationCompat;
 import androidx.lifecycle.MutableLiveData;
+import androidx.media3.common.AudioAttributes;
+import androidx.media3.common.C;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.MediaMetadata;
 import androidx.media3.common.Player;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.exoplayer.DefaultLoadControl;
+import androidx.media3.exoplayer.DefaultRenderersFactory;
 import androidx.media3.exoplayer.ExoPlayer;
 import androidx.media3.exoplayer.LoadControl;
+import androidx.media3.exoplayer.RenderersFactory;
 import androidx.media3.session.MediaSession;
 import androidx.media3.session.MediaSessionService;
 
@@ -94,8 +98,17 @@ public class PlaybackService extends MediaSessionService {
                 )
                 .build();
 
+        RenderersFactory renderersFactory = new DefaultRenderersFactory(this);
+
+        AudioAttributes audioAttributes = new AudioAttributes.Builder()
+                .setUsage(C.USAGE_MEDIA)
+                .setContentType(C.AUDIO_CONTENT_TYPE_SPEECH)
+                .build();
+
         player = new ExoPlayer.Builder(this)
                 .setLoadControl(loadControl)
+                .setRenderersFactory(renderersFactory)
+                .setAudioAttributes(audioAttributes, true)
                 .build();
 
         mediaSession = new MediaSession.Builder(this, player).build();
@@ -122,7 +135,7 @@ public class PlaybackService extends MediaSessionService {
                     List<BookFile> chapters = currentBook.getValue().getFiles().getFull();
                     if (newIndex >= 0 && newIndex < chapters.size()) {
                         BookFile chapter = chapters.get(newIndex);
-                        currentChapter.postValue(chapter);
+                        currentChapter.setValue(chapter);
                         long duration = player.getDuration();
                         totalDuration.postValue(duration > 0 ? duration : 0L);
 
