@@ -61,6 +61,8 @@ public class MainViewModel extends AndroidViewModel {
     private final MutableLiveData<PlaybackService> playbackService = new MutableLiveData<>();
     private final MutableLiveData<Boolean> isPlayerVisible = new MutableLiveData<>(false);
 
+    private final MutableLiveData<com.metimol.easybook.database.Book> currentDbBookProgress = new MutableLiveData<>();
+
     public MainViewModel(@NonNull Application application) {
         super(application);
         audiobookDao = AppDatabase.getDatabase(application).audiobookDao();
@@ -129,6 +131,21 @@ public class MainViewModel extends AndroidViewModel {
         return currentSourceType != SourceType.NONE;
     }
 
+    public LiveData<com.metimol.easybook.database.Book> getBookProgress() {
+        return currentDbBookProgress;
+    }
+
+    public void loadBookProgress(String bookId) {
+        databaseExecutor.execute(() -> {
+            com.metimol.easybook.database.Book dbBook = audiobookDao.getBookById(bookId);
+            currentDbBookProgress.postValue(dbBook);
+        });
+    }
+
+    public void clearBookProgress() {
+        currentDbBookProgress.setValue(null);
+    }
+
     public LiveData<Boolean> getIsBookFavorite(String bookId) {
         if (isBookFavorite == null) {
             isBookFavorite = audiobookDao.isBookFavorite(bookId);
@@ -175,6 +192,7 @@ public class MainViewModel extends AndroidViewModel {
         databaseExecutor.execute(() -> {
             String bookId = apiBook.getId();
             boolean bookExists = audiobookDao.bookExists(bookId);
+            long now = System.currentTimeMillis();
 
             if (!bookExists) {
                 com.metimol.easybook.database.Book dbBook = new com.metimol.easybook.database.Book();
@@ -183,12 +201,17 @@ public class MainViewModel extends AndroidViewModel {
                 dbBook.isFinished = true;
                 dbBook.currentChapterId = null;
                 dbBook.currentTimestamp = 0;
-                dbBook.lastListened = 0;
+                dbBook.lastListened = now;
                 audiobookDao.insertBook(dbBook);
             } else {
                 Boolean currentStatus = isBookFinished.getValue();
                 boolean newStatus = currentStatus == null || !currentStatus;
                 audiobookDao.updateFinishedStatus(bookId, newStatus);
+                if (newStatus) {
+                    audiobookDao.updateBookProgress(bookId, null, 0, now, true);
+                } else {
+                    audiobookDao.updateBookProgress(bookId, null, 0, now, false);
+                }
             }
         });
     }
@@ -643,6 +666,7 @@ public class MainViewModel extends AndroidViewModel {
         isBookLoading.setValue(false);
         isBookFavorite = null;
         isBookFinished = null;
+        clearBookProgress();
     }
 
     public void resetBookList() {

@@ -61,6 +61,7 @@ public class BookInfoFragment extends Fragment {
 
     private boolean isCurrentlyFinished = false;
     private PlaybackService playbackService;
+    private com.metimol.easybook.database.Book currentDbBook;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -130,6 +131,11 @@ public class BookInfoFragment extends Fragment {
             viewModel.fetchBookDetails(bookID);
         }
 
+        viewModel.loadBookProgress(bookID);
+        viewModel.getBookProgress().observe(getViewLifecycleOwner(), dbBook -> {
+            this.currentDbBook = dbBook;
+        });
+
         sharedViewModel.getStatusBarHeight().observe(getViewLifecycleOwner(), height -> {
             book_info_main_container.setPaddingRelative(
                     book_info_main_container.getPaddingStart(),
@@ -148,7 +154,24 @@ public class BookInfoFragment extends Fragment {
         playFab.setOnClickListener(v -> {
             Book book = viewModel.getSelectedBookDetails().getValue();
             if (playbackService != null && book != null) {
-                playbackService.playBookFromIndex(book, 0);
+                int chapterIndex = 0;
+                long timestamp = 0;
+
+                if (currentDbBook != null && currentDbBook.currentChapterId != null && !currentDbBook.isFinished) {
+                    timestamp = currentDbBook.currentTimestamp;
+                    String chapterId = currentDbBook.currentChapterId;
+
+                    if (book.getFiles() != null && book.getFiles().getFull() != null) {
+                        for (int i = 0; i < book.getFiles().getFull().size(); i++) {
+                            if (String.valueOf(book.getFiles().getFull().get(i).getId()).equals(chapterId)) {
+                                chapterIndex = i;
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                playbackService.playBookFromProgress(book, chapterIndex, timestamp);
                 new PlayerBottomSheetFragment().show(getParentFragmentManager(), "PlayerBottomSheet");
             }
         });
@@ -296,7 +319,7 @@ public class BookInfoFragment extends Fragment {
         episodeAdapter.setOnEpisodeClickListener((episode, position) -> {
             Book book = viewModel.getSelectedBookDetails().getValue();
             if (playbackService != null && book != null) {
-                playbackService.playBookFromIndex(book, position);
+                playbackService.playBookFromProgress(book, position, 0L);
                 new PlayerBottomSheetFragment().show(getParentFragmentManager(), "PlayerBottomSheet");
             }
         });

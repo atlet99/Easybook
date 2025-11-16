@@ -27,10 +27,14 @@ import androidx.media3.session.MediaSessionService;
 import com.metimol.easybook.R;
 import com.metimol.easybook.api.models.Book;
 import com.metimol.easybook.api.models.BookFile;
+import com.metimol.easybook.database.AppDatabase;
+import com.metimol.easybook.database.AudiobookDao;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 public class PlaybackService extends MediaSessionService {
@@ -51,6 +55,9 @@ public class PlaybackService extends MediaSessionService {
 
     private final IBinder binder = new PlaybackBinder();
 
+    private AudiobookDao audiobookDao;
+    private ExecutorService databaseExecutor;
+
     public class PlaybackBinder extends Binder {
         public PlaybackService getService() {
             return PlaybackService.this;
@@ -69,6 +76,9 @@ public class PlaybackService extends MediaSessionService {
     public void onCreate() {
         super.onCreate();
         createNotificationChannel();
+
+        audiobookDao = AppDatabase.getDatabase(this).audiobookDao();
+        databaseExecutor = Executors.newSingleThreadExecutor();
 
         int minBufferMs = 60_000;
         int maxBufferMs = 300_000;
@@ -99,12 +109,14 @@ public class PlaybackService extends MediaSessionService {
                     startForeground(NOTIFICATION_ID, buildNotification());
                 } else {
                     stopProgressUpdater();
+                    saveCurrentBookProgress();
                     stopForeground(false);
                 }
             }
 
             @Override
             public void onMediaItemTransition(@Nullable MediaItem mediaItem, int reason) {
+                saveCurrentBookProgress();
                 if (mediaItem != null && currentBook.getValue() != null) {
                     int newIndex = player.getCurrentMediaItemIndex();
                     List<BookFile> chapters = currentBook.getValue().getFiles().getFull();
@@ -127,6 +139,9 @@ public class PlaybackService extends MediaSessionService {
                 } else if (playbackState == Player.STATE_ENDED) {
                     isPlaying.postValue(false);
                     stopProgressUpdater();
+                    if (!player.hasNextMediaItem()) {
+                        markCurrentBookAsFinished();
+                    }
                 }
             }
         });
@@ -161,6 +176,7 @@ public class PlaybackService extends MediaSessionService {
     @Override
     public void onDestroy() {
         stopProgressUpdater();
+        saveCurrentBookProgress();
         if (player != null) {
             player.release();
             player = null;
@@ -205,20 +221,96 @@ public class PlaybackService extends MediaSessionService {
                 .build();
     }
 
-    public void playBookFromIndex(Book book, int chapterIndex) {
+    private void saveCurrentBookProgress() {
+        Book book = currentBook.getValue();
+        BookFile chapter = currentChapter.getValue();
+        long position = player.getCurrentPosition();
+
+        if (book == null || chapter == null || position < 0) {
+            return;
+        }
+
+        String bookId = book.getId();
+        String chapterId = String.valueOf(chapter.getId());
+        long timestamp = (position > 0) ? position : 0L;
+        long lastListened = System.currentTimeMillis();
+
+        databaseExecutor.execute(() -> {
+            boolean bookExists = audiobookDao.bookExists(bookId);
+            if (!bookExists) {
+                com.metimol.easybook.database.Book dbBook = new com.metimol.easybook.database.Book();
+                dbBook.id = bookId;
+                dbBook.isFavorite = false;
+                dbBook.isFinished = false;
+                dbBook.currentChapterId = chapterId;
+                dbBook.currentTimestamp = timestamp;
+                dbBook.lastListened = lastListened;
+                audiobookDao.insertBook(dbBook);
+            } else {
+                audiobookDao.updateBookProgress(bookId, chapterId, timestamp, lastListened, false);
+            }
+        });
+    }
+
+    private void markCurrentBookAsFinished() {
+        Book book = currentBook.getValue();
+        if (book == null) return;
+
+        String bookId = book.getId();
+        databaseExecutor.execute(() -> {
+            boolean bookExists = audiobookDao.bookExists(bookId);
+            if (!bookExists) {
+                com.metimol.easybook.database.Book dbBook = new com.metimol.easybook.database.Book();
+                dbBook.id = bookId;
+                dbBook.isFavorite = false;
+                dbBook.isFinished = true;
+                dbBook.currentChapterId = null;
+                dbBook.currentTimestamp = 0;
+                dbBook.lastListened = System.currentTimeMillis();
+                audiobookDao.insertBook(dbBook);
+            } else {
+                audiobookDao.updateFinishedStatus(bookId, true);
+                audiobookDao.updateBookProgress(bookId, null, 0, System.currentTimeMillis(), true);
+            }
+        });
+    }
+
+    public void playBookFromProgress(Book book, int chapterIndex, long timestamp) {
         if (book == null || book.getFiles() == null || book.getFiles().getFull() == null) {
             return;
         }
 
         boolean isSameBook = book.getId().equals(currentBook.getValue() != null ? currentBook.getValue().getId() : null);
 
-        currentBook.postValue(book);
+        currentBook.setValue(book);
         List<BookFile> chapters = book.getFiles().getFull();
 
         if (chapterIndex < 0 || chapterIndex >= chapters.size()) {
             chapterIndex = 0;
         }
-        currentChapter.postValue(chapters.get(chapterIndex));
+        currentChapter.setValue(chapters.get(chapterIndex));
+
+        final BookFile startingChapter = chapters.get(chapterIndex);
+        databaseExecutor.execute(() -> {
+            String bookId = book.getId();
+            String chapterId = String.valueOf(startingChapter.getId());
+            long lastListened = System.currentTimeMillis();
+
+            if (!audiobookDao.bookExists(bookId)) {
+                com.metimol.easybook.database.Book dbBook = new com.metimol.easybook.database.Book();
+                dbBook.id = bookId;
+                dbBook.isFavorite = false;
+                dbBook.isFinished = false;
+                dbBook.currentChapterId = chapterId;
+                dbBook.currentTimestamp = timestamp;
+                dbBook.lastListened = lastListened;
+                audiobookDao.insertBook(dbBook);
+            } else {
+                audiobookDao.updateFinishedStatus(bookId, false);
+                audiobookDao.updateBookProgress(bookId, chapterId, timestamp, lastListened, false);
+            }
+        });
+
 
         if (!isSameBook) {
             List<MediaItem> mediaItems = new ArrayList<>();
@@ -237,10 +329,10 @@ public class PlaybackService extends MediaSessionService {
                         .build();
                 mediaItems.add(mediaItem);
             }
-            player.setMediaItems(mediaItems, chapterIndex, 0L);
+            player.setMediaItems(mediaItems, chapterIndex, timestamp);
             player.prepare();
         } else {
-            player.seekTo(chapterIndex, 0L);
+            player.seekTo(chapterIndex, timestamp);
         }
 
         player.play();
