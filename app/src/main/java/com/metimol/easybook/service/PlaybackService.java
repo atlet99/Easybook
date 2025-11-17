@@ -3,6 +3,7 @@ package com.metimol.easybook.service;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.Handler;
@@ -12,7 +13,6 @@ import android.os.Looper;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
-import androidx.core.app.NotificationCompat;
 import androidx.lifecycle.MutableLiveData;
 import androidx.media3.common.AudioAttributes;
 import androidx.media3.common.C;
@@ -27,7 +27,9 @@ import androidx.media3.exoplayer.LoadControl;
 import androidx.media3.exoplayer.RenderersFactory;
 import androidx.media3.session.MediaSession;
 import androidx.media3.session.MediaSessionService;
+import androidx.media3.ui.PlayerNotificationManager;
 
+import com.metimol.easybook.MainActivity;
 import com.metimol.easybook.R;
 import com.metimol.easybook.api.models.Book;
 import com.metimol.easybook.api.models.BookFile;
@@ -37,6 +39,7 @@ import com.metimol.easybook.database.AudiobookDao;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -44,6 +47,8 @@ import java.util.concurrent.TimeUnit;
 public class PlaybackService extends MediaSessionService {
     private MediaSession mediaSession;
     private ExoPlayer player;
+    @OptIn(markerClass = UnstableApi.class)
+    private PlayerNotificationManager notificationManager;
 
     private static final String CHANNEL_ID = "PlaybackServiceChannel";
     private static final int NOTIFICATION_ID = 1;
@@ -115,7 +120,89 @@ public class PlaybackService extends MediaSessionService {
                 .setAudioAttributes(audioAttributes, true)
                 .build();
 
-        mediaSession = new MediaSession.Builder(this, player).build();
+        mediaSession = new MediaSession.Builder(this, player)
+                .setId("EasyBookPlaybackSession")
+                .build();
+
+        notificationManager = new PlayerNotificationManager.Builder(
+                this,
+                NOTIFICATION_ID,
+                CHANNEL_ID
+        )
+                .setMediaDescriptionAdapter(new PlayerNotificationManager.MediaDescriptionAdapter() {
+                    @Override
+                    public CharSequence getCurrentContentTitle(Player player) {
+                        MediaMetadata metadata = player.getMediaMetadata();
+                        if (metadata.title != null) {
+                            return metadata.title;
+                        }
+                        return getString(R.string.audiobook);
+                    }
+
+                    @Override
+                    public PendingIntent createCurrentContentIntent(Player player) {
+                        Intent intent = new Intent(PlaybackService.this, MainActivity.class);
+                        return PendingIntent.getActivity(
+                                PlaybackService.this,
+                                0,
+                                intent,
+                                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+                        );
+                    }
+
+                    @Override
+                    public CharSequence getCurrentContentText(Player player) {
+                        MediaMetadata metadata = player.getMediaMetadata();
+                        return Objects.requireNonNullElseGet(metadata.artist, () -> getString(R.string.app_name));
+                    }
+
+                    @Override
+                    public CharSequence getCurrentSubText(Player player) {
+                        MediaMetadata metadata = player.getMediaMetadata();
+                        if (metadata.albumTitle != null) {
+                            return metadata.albumTitle;
+                        }
+                        return null;
+                    }
+
+                    @Nullable
+                    @Override
+                    public android.graphics.Bitmap getCurrentLargeIcon(
+                            Player player,
+                            PlayerNotificationManager.BitmapCallback callback
+                    ) {
+                        return null;
+                    }
+                })
+                .setNotificationListener(new PlayerNotificationManager.NotificationListener() {
+                    @Override
+                    public void onNotificationCancelled(int notificationId, boolean dismissedByUser) {
+                        stopForeground(true);
+                        stopSelf();
+                    }
+
+                    @Override
+                    public void onNotificationPosted(
+                            int notificationId,
+                            Notification notification,
+                            boolean ongoing
+                    ) {
+                        if (ongoing) {
+                            startForeground(notificationId, notification);
+                        } else {
+                            stopForeground(false);
+                        }
+                    }
+                })
+                .setSmallIconResourceId(R.drawable.ic_play)
+                .build();
+
+        notificationManager.setPlayer(player);
+        notificationManager.setMediaSessionToken(mediaSession.getSessionCompatToken());
+        notificationManager.setUseNextAction(true);
+        notificationManager.setUsePreviousAction(true);
+        notificationManager.setUsePlayPauseActions(true);
+        notificationManager.setUseStopAction(false);
 
         player.addListener(new Player.Listener() {
             @Override
@@ -123,12 +210,10 @@ public class PlaybackService extends MediaSessionService {
                 isPlaying.postValue(playing);
                 if (playing) {
                     startProgressUpdater();
-                    startForeground(NOTIFICATION_ID, buildNotification());
                     isLoading.postValue(false);
                 } else {
                     stopProgressUpdater();
                     saveCurrentBookProgress();
-                    stopForeground(false);
                 }
             }
 
@@ -146,8 +231,6 @@ public class PlaybackService extends MediaSessionService {
 
                         hasNext.postValue(player.hasNextMediaItem());
                         hasPrevious.postValue(player.hasPreviousMediaItem());
-
-                        startForeground(NOTIFICATION_ID, buildNotification());
                     }
                 }
             }
@@ -206,18 +289,26 @@ public class PlaybackService extends MediaSessionService {
         return mediaSession;
     }
 
+    @OptIn(markerClass = UnstableApi.class)
     @Override
     public void onDestroy() {
         stopProgressUpdater();
         saveCurrentBookProgress();
+
+        if (notificationManager != null) {
+            notificationManager.setPlayer(null);
+        }
+
         if (player != null) {
             player.release();
             player = null;
         }
+
         if (mediaSession != null) {
             mediaSession.release();
             mediaSession = null;
         }
+
         super.onDestroy();
     }
 
@@ -225,33 +316,16 @@ public class PlaybackService extends MediaSessionService {
         NotificationChannel serviceChannel = new NotificationChannel(
                 CHANNEL_ID,
                 "Playback Service Channel",
-                NotificationManager.IMPORTANCE_LOW
+                NotificationManager.IMPORTANCE_DEFAULT
         );
+        serviceChannel.setDescription("Media playback controls");
+        serviceChannel.setShowBadge(false);
+        serviceChannel.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
+
         NotificationManager manager = getSystemService(NotificationManager.class);
         if (manager != null) {
             manager.createNotificationChannel(serviceChannel);
         }
-    }
-
-    private Notification buildNotification() {
-        MediaMetadata metadata = player.getMediaMetadata();
-        String title = getString(R.string.audiobook);
-        String artist = getString(R.string.app_name);
-
-        if (metadata.title != null) {
-            title = metadata.title.toString();
-        }
-        if (metadata.artist != null) {
-            artist = metadata.artist.toString();
-        }
-
-        return new NotificationCompat.Builder(this, CHANNEL_ID)
-                .setContentTitle(title)
-                .setContentText(artist)
-                .setSmallIcon(R.drawable.ic_play)
-                .setOngoing(true)
-                .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
-                .build();
     }
 
     private void saveCurrentBookProgress() {
@@ -379,7 +453,6 @@ public class PlaybackService extends MediaSessionService {
                 audiobookDao.updateBookProgress(bookId, chapterId, timestamp, lastListened, false);
             }
         });
-
 
         player.play();
         startService(new Intent(this, PlaybackService.class));
