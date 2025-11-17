@@ -70,6 +70,7 @@ public class PlaybackService extends MediaSessionService {
 
     private AudiobookDao audiobookDao;
     private ExecutorService databaseExecutor;
+    private boolean isFinishCheckPending = false;
 
     public class PlaybackBinder extends Binder {
         public PlaybackService getService() {
@@ -266,10 +267,31 @@ public class PlaybackService extends MediaSessionService {
                     long bufferedPos = player.getBufferedPosition();
                     currentPosition.postValue(pos > 0 ? pos : 0L);
                     bufferedPosition.postValue(bufferedPos > 0 ? bufferedPos : 0L);
+
+                    checkBookFinishedCondition(pos);
+
                     progressHandler.postDelayed(this, 500);
                 }
             }
         };
+    }
+
+    private void checkBookFinishedCondition(long currentPosition) {
+        if (player == null || player.hasNextMediaItem() || isFinishCheckPending) {
+            return;
+        }
+
+        long duration = player.getDuration();
+        if (duration <= 0) {
+            return;
+        }
+
+        long remainingTimeMs = duration - currentPosition;
+        long threeMinutesMs = 180_000L;
+
+        if (remainingTimeMs > 0 && remainingTimeMs <= threeMinutesMs) {
+            markCurrentBookAsFinished();
+        }
     }
 
     private void startProgressUpdater() {
@@ -359,7 +381,8 @@ public class PlaybackService extends MediaSessionService {
 
     private void markCurrentBookAsFinished() {
         Book book = currentBook.getValue();
-        if (book == null) return;
+        if (book == null || isFinishCheckPending) return;
+        isFinishCheckPending = true;
 
         String bookId = book.getId();
         databaseExecutor.execute(() -> {
@@ -374,8 +397,11 @@ public class PlaybackService extends MediaSessionService {
                 dbBook.lastListened = System.currentTimeMillis();
                 audiobookDao.insertBook(dbBook);
             } else {
-                audiobookDao.updateFinishedStatus(bookId, true);
-                audiobookDao.updateBookProgress(bookId, null, 0, System.currentTimeMillis(), true);
+                com.metimol.easybook.database.Book dbBook = audiobookDao.getBookById(bookId);
+                if (dbBook != null && !dbBook.isFinished) {
+                    audiobookDao.updateFinishedStatus(bookId, true);
+                    audiobookDao.updateBookProgress(bookId, null, 0, System.currentTimeMillis(), true);
+                }
             }
         });
     }
@@ -386,6 +412,8 @@ public class PlaybackService extends MediaSessionService {
         }
 
         boolean isSameBook = book.getId().equals(currentBook.getValue() != null ? currentBook.getValue().getId() : null);
+
+        isFinishCheckPending = false;
 
         currentBook.setValue(book);
         List<BookFile> chapters = book.getFiles().getFull();
@@ -471,12 +499,14 @@ public class PlaybackService extends MediaSessionService {
     public void skipToNext() {
         if (player.hasNextMediaItem()) {
             player.seekToNextMediaItem();
+            player.play();
         }
     }
 
     public void skipToPrevious() {
         if (player.hasPreviousMediaItem()) {
             player.seekToPreviousMediaItem();
+            player.play();
         }
     }
 
