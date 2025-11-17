@@ -43,6 +43,7 @@ public class PlayerBottomSheetFragment extends BottomSheetDialogFragment {
 
     private ConstraintLayout playerContentGroup;
     private View emptyPlayerView;
+    private View pager_indicator;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -77,12 +78,14 @@ public class PlayerBottomSheetFragment extends BottomSheetDialogFragment {
         btnNextCard = view.findViewById(R.id.btn_next_card);
         playerContentGroup = view.findViewById(R.id.player_content_group);
         emptyPlayerView = view.findViewById(R.id.empty_player_view);
+        pager_indicator = view.findViewById(R.id.pager_indicator);
 
         setupClickListeners();
 
         viewModel.getPlaybackService().observe(getViewLifecycleOwner(), service -> {
             if (service == null) {
                 playerContentGroup.setVisibility(View.GONE);
+                pager_indicator.setVisibility(View.GONE);
                 emptyPlayerView.setVisibility(View.VISIBLE);
                 return;
             }
@@ -95,6 +98,7 @@ public class PlayerBottomSheetFragment extends BottomSheetDialogFragment {
     private void updateInitialUIState() {
         if (playbackService == null) {
             playerContentGroup.setVisibility(View.GONE);
+            pager_indicator.setVisibility(View.GONE);
             emptyPlayerView.setVisibility(View.VISIBLE);
             return;
         }
@@ -102,9 +106,11 @@ public class PlayerBottomSheetFragment extends BottomSheetDialogFragment {
         Book currentBook = playbackService.currentBook.getValue();
         if (currentBook == null) {
             playerContentGroup.setVisibility(View.GONE);
+            pager_indicator.setVisibility(View.GONE);
             emptyPlayerView.setVisibility(View.VISIBLE);
         } else {
             playerContentGroup.setVisibility(View.VISIBLE);
+            pager_indicator.setVisibility(View.VISIBLE);
             emptyPlayerView.setVisibility(View.GONE);
 
             updateBookUI(currentBook);
