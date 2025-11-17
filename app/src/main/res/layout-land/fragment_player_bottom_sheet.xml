@@ -14,8 +14,8 @@
         android:id="@+id/drag_handle"
         android:layout_width="40dp"
         android:layout_height="4dp"
-        android:background="#E0E0E0"
-        android:backgroundTint="#E0E0E0"
+        android:background="@color/white_grey"
+        android:backgroundTint="@color/white_grey"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -244,7 +244,7 @@
             android:layout_width="6dp"
             android:layout_height="6dp"
             android:background="@drawable/green_circle_background"
-            android:backgroundTint="#E0E0E0"/>
+            android:backgroundTint="@color/white_grey"/>
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
