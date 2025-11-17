@@ -79,7 +79,7 @@ public class PlaybackService extends MediaSessionService {
 
     @Nullable
     @Override
-    public IBinder onBind(@NonNull Intent intent) {
+    public IBinder onBind(Intent intent) {
         super.onBind(intent);
         return binder;
     }
@@ -130,17 +130,15 @@ public class PlaybackService extends MediaSessionService {
                 CHANNEL_ID
         )
                 .setMediaDescriptionAdapter(new PlayerNotificationManager.MediaDescriptionAdapter() {
+                    @NonNull
                     @Override
-                    public CharSequence getCurrentContentTitle(Player player) {
+                    public CharSequence getCurrentContentTitle(@NonNull Player player) {
                         MediaMetadata metadata = player.getMediaMetadata();
-                        if (metadata.title != null) {
-                            return metadata.title;
-                        }
-                        return getString(R.string.audiobook);
+                        return Objects.requireNonNullElseGet(metadata.title, () -> getString(R.string.audiobook));
                     }
 
                     @Override
-                    public PendingIntent createCurrentContentIntent(Player player) {
+                    public PendingIntent createCurrentContentIntent(@NonNull Player player) {
                         Intent intent = new Intent(PlaybackService.this, MainActivity.class);
                         return PendingIntent.getActivity(
                                 PlaybackService.this,
@@ -151,13 +149,13 @@ public class PlaybackService extends MediaSessionService {
                     }
 
                     @Override
-                    public CharSequence getCurrentContentText(Player player) {
+                    public CharSequence getCurrentContentText(@NonNull Player player) {
                         MediaMetadata metadata = player.getMediaMetadata();
                         return Objects.requireNonNullElseGet(metadata.artist, () -> getString(R.string.app_name));
                     }
 
                     @Override
-                    public CharSequence getCurrentSubText(Player player) {
+                    public CharSequence getCurrentSubText(@NonNull Player player) {
                         MediaMetadata metadata = player.getMediaMetadata();
                         if (metadata.albumTitle != null) {
                             return metadata.albumTitle;
@@ -168,8 +166,8 @@ public class PlaybackService extends MediaSessionService {
                     @Nullable
                     @Override
                     public android.graphics.Bitmap getCurrentLargeIcon(
-                            Player player,
-                            PlayerNotificationManager.BitmapCallback callback
+                            @NonNull Player player,
+                            @NonNull PlayerNotificationManager.BitmapCallback callback
                     ) {
                         return null;
                     }
@@ -184,7 +182,7 @@ public class PlaybackService extends MediaSessionService {
                     @Override
                     public void onNotificationPosted(
                             int notificationId,
-                            Notification notification,
+                            @NonNull Notification notification,
                             boolean ongoing
                     ) {
                         if (ongoing) {
@@ -436,6 +434,7 @@ public class PlaybackService extends MediaSessionService {
         final BookFile startingChapter = currentChapter.getValue();
         databaseExecutor.execute(() -> {
             String bookId = book.getId();
+            assert startingChapter != null;
             String chapterId = String.valueOf(startingChapter.getId());
             long lastListened = System.currentTimeMillis();
 
