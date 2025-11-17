@@ -20,8 +20,16 @@
         <br /><b>Главная и подборки</b>
       </td>
       <td align="center">
+        <img src="https://raw.githubusercontent.com/metimol/Easybook/refs/heads/main/mockups/2.png" width="250" />
+        <br /><b>Темная тема</b>
+      </td>
+      <td align="center">
         <img src="https://raw.githubusercontent.com/metimol/Easybook/refs/heads/main/mockups/3.png" width="250" />
         <br /><b>Детали книги</b>
+      </td>
+      <td align="center">
+        <img src="https://raw.githubusercontent.com/metimol/Easybook/refs/heads/main/mockups/4.png" width="250" />
+        <br /><b>Выбор глав</b>
       </td>
       <td align="center">
         <img src="https://raw.githubusercontent.com/metimol/Easybook/refs/heads/main/mockups/5.png" width="250" />
@@ -32,14 +40,6 @@
       <td align="center">
         <img src="https://raw.githubusercontent.com/metimol/Easybook/refs/heads/main/mockups/6.png" width="250" />
         <br /><b>Категории</b>
-      </td>
-      <td align="center">
-        <img src="https://raw.githubusercontent.com/metimol/Easybook/refs/heads/main/mockups/4.png" width="250" />
-        <br /><b>Выбор глав</b>
-      </td>
-      <td align="center">
-        <img src="https://raw.githubusercontent.com/metimol/Easybook/refs/heads/main/mockups/2.png" width="250" />
-        <br /><b>Темная тема</b>
       </td>
     </tr>
   </table>
