@@ -1,6 +1,9 @@
 package com.metimol.easybook;
 
 import android.app.Application;
+import android.os.Handler;
+import android.os.Looper;
+
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
@@ -60,6 +63,7 @@ public class MainViewModel extends AndroidViewModel {
 
     private final MutableLiveData<PlaybackService> playbackService = new MutableLiveData<>();
     private final MutableLiveData<Boolean> isPlayerVisible = new MutableLiveData<>(false);
+    private boolean hasRestoreAttempted = false;
 
     private final MutableLiveData<com.metimol.easybook.database.Book> currentDbBookProgress = new MutableLiveData<>();
 
@@ -74,9 +78,49 @@ public class MainViewModel extends AndroidViewModel {
         if (service != null) {
             isPlayerVisible.setValue(service.currentBook.getValue() != null);
             service.currentBook.observeForever(book -> isPlayerVisible.postValue(book != null));
+
+            if (service.currentBook.getValue() == null && !hasRestoreAttempted) {
+                hasRestoreAttempted = true;
+                restoreLastPlayerState(service);
+            }
         } else {
             isPlayerVisible.setValue(false);
         }
+    }
+
+    private void restoreLastPlayerState(PlaybackService service) {
+        databaseExecutor.execute(() -> {
+            com.metimol.easybook.database.Book lastDbBook = audiobookDao.getLastListenedBook();
+            if (lastDbBook != null && lastDbBook.currentChapterId != null) {
+                ApiService apiService = ApiClient.getClient().create(ApiService.class);
+                try {
+                    String query = QueryBuilder.buildBookDetailsQuery(Integer.parseInt(lastDbBook.id));
+                    Call<ApiResponse<BookData>> call = apiService.getBookDetails(query, 1);
+                    Response<ApiResponse<BookData>> response = call.execute();
+
+                    if (response.isSuccessful() && response.body() != null && response.body().getData() != null) {
+                        Book apiBook = response.body().getData().getBook();
+                        if (apiBook != null && apiBook.getFiles() != null && apiBook.getFiles().getFull() != null) {
+                            int chapterIndex = 0;
+                            for (int i = 0; i < apiBook.getFiles().getFull().size(); i++) {
+                                if (String.valueOf(apiBook.getFiles().getFull().get(i).getId()).equals(lastDbBook.currentChapterId)) {
+                                    chapterIndex = i;
+                                    break;
+                                }
+                            }
+
+                            long timestamp = lastDbBook.currentTimestamp;
+                            int finalChapterIndex = chapterIndex;
+                            new Handler(Looper.getMainLooper()).post(() -> {
+                                service.prepareBookFromProgress(apiBook, finalChapterIndex, timestamp);
+                            });
+                        }
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
     }
 
     public LiveData<PlaybackService> getPlaybackService() {
