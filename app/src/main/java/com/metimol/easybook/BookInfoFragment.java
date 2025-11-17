@@ -118,13 +118,25 @@ public class BookInfoFragment extends Fragment {
 
         viewModel.getPlaybackService().observe(getViewLifecycleOwner(), service -> {
             this.playbackService = service;
+            if (service != null) {
+                service.currentBook.observe(getViewLifecycleOwner(), playingBook -> {
+                    updatePlayPauseButtonState();
+                });
+                service.isPlaying.observe(getViewLifecycleOwner(), isPlaying -> {
+                    updatePlayPauseButtonState();
+                });
+            }
+            updatePlayPauseButtonState();
         });
 
         viewModel.getIsBookLoading().observe(getViewLifecycleOwner(), isLoading -> {
             progressBar.setVisibility(isLoading ? View.VISIBLE : View.GONE);
         });
 
-        viewModel.getSelectedBookDetails().observe(getViewLifecycleOwner(), this::updateUI);
+        viewModel.getSelectedBookDetails().observe(getViewLifecycleOwner(), displayedBook -> {
+            updateUI(displayedBook);
+            updatePlayPauseButtonState();
+        });
 
         if (viewModel.getSelectedBookDetails().getValue() == null ||
                 !viewModel.getSelectedBookDetails().getValue().getId().equals(bookID)) {
@@ -152,8 +164,23 @@ public class BookInfoFragment extends Fragment {
         ivMore.setOnClickListener(this::showBookOptionsMenu);
 
         playFab.setOnClickListener(v -> {
-            Book book = viewModel.getSelectedBookDetails().getValue();
-            if (playbackService != null && book != null) {
+            Book displayedBook = viewModel.getSelectedBookDetails().getValue();
+            if (playbackService == null || displayedBook == null) {
+                return;
+            }
+
+            Book playingBook = playbackService.currentBook.getValue();
+            Boolean isPlaying = playbackService.isPlaying.getValue();
+            if (isPlaying == null) isPlaying = false;
+
+            boolean isThisBookInPlayer = (playingBook != null && displayedBook.getId().equals(playingBook.getId()));
+
+            if (isThisBookInPlayer) {
+                playbackService.togglePlayPause();
+                if (!isPlaying) {
+                    new PlayerBottomSheetFragment().show(getParentFragmentManager(), "PlayerBottomSheet");
+                }
+            } else {
                 int chapterIndex = 0;
                 long timestamp = 0;
 
@@ -161,9 +188,9 @@ public class BookInfoFragment extends Fragment {
                     timestamp = currentDbBook.currentTimestamp;
                     String chapterId = currentDbBook.currentChapterId;
 
-                    if (book.getFiles() != null && book.getFiles().getFull() != null) {
-                        for (int i = 0; i < book.getFiles().getFull().size(); i++) {
-                            if (String.valueOf(book.getFiles().getFull().get(i).getId()).equals(chapterId)) {
+                    if (displayedBook.getFiles() != null && displayedBook.getFiles().getFull() != null) {
+                        for (int i = 0; i < displayedBook.getFiles().getFull().size(); i++) {
+                            if (String.valueOf(displayedBook.getFiles().getFull().get(i).getId()).equals(chapterId)) {
                                 chapterIndex = i;
                                 break;
                             }
@@ -171,7 +198,7 @@ public class BookInfoFragment extends Fragment {
                     }
                 }
 
-                playbackService.playBookFromProgress(book, chapterIndex, timestamp);
+                playbackService.playBookFromProgress(displayedBook, chapterIndex, timestamp);
                 new PlayerBottomSheetFragment().show(getParentFragmentManager(), "PlayerBottomSheet");
             }
         });
@@ -344,6 +371,36 @@ public class BookInfoFragment extends Fragment {
             @Override
             public void onTabReselected(TabLayout.Tab tab) {}
         });
+    }
+
+    private void updatePlayPauseButtonState() {
+        if (playFab == null || viewModel == null) {
+            return;
+        }
+
+        playFab.setImageResource(R.drawable.ic_play);
+
+        if (playbackService == null) {
+            return;
+        }
+
+        Book displayedBook = viewModel.getSelectedBookDetails().getValue();
+        Book playingBook = playbackService.currentBook.getValue();
+        Boolean isPlaying = playbackService.isPlaying.getValue();
+
+        if (isPlaying == null) {
+            isPlaying = false;
+        }
+
+        if (displayedBook != null && playingBook != null && displayedBook.getId().equals(playingBook.getId())) {
+            if (isPlaying) {
+                playFab.setImageResource(R.drawable.ic_pause);
+            } else {
+                playFab.setImageResource(R.drawable.ic_play);
+            }
+        } else {
+            playFab.setImageResource(R.drawable.ic_play);
+        }
     }
 
     @Override
