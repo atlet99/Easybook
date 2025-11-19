@@ -4,6 +4,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.DiffUtil;
@@ -41,7 +42,8 @@ public class BookAdapter extends ListAdapter<Book, BookAdapter.BookViewHolder> {
 
         @Override
         public boolean areContentsTheSame(@NonNull Book oldItem, @NonNull Book newItem) {
-            return Objects.equals(oldItem.getName(), newItem.getName());
+            return Objects.equals(oldItem.getName(), newItem.getName()) &&
+                    oldItem.getProgressPercentage() == newItem.getProgressPercentage();
         }
     };
 
@@ -69,6 +71,7 @@ public class BookAdapter extends ListAdapter<Book, BookAdapter.BookViewHolder> {
         private final TextView bookTitle;
         private final TextView bookAuthor;
         private final TextView bookReader;
+        private final ProgressBar bookProgress;
         private final CircularProgressDrawable progressDrawable;
 
         public BookViewHolder(@NonNull View itemView) {
@@ -77,6 +80,7 @@ public class BookAdapter extends ListAdapter<Book, BookAdapter.BookViewHolder> {
             bookTitle = itemView.findViewById(R.id.bookTitle);
             bookAuthor = itemView.findViewById(R.id.bookAuthor);
             bookReader = itemView.findViewById(R.id.bookReader);
+            bookProgress = itemView.findViewById(R.id.book_progress);
 
             progressDrawable = new CircularProgressDrawable(itemView.getContext());
             progressDrawable.setStrokeWidth(5f);
@@ -99,6 +103,13 @@ public class BookAdapter extends ListAdapter<Book, BookAdapter.BookViewHolder> {
                 bookReader.setText(Reader);
             } else {
                 bookReader.setText(itemView.getContext().getString(R.string.unknown));
+            }
+
+            if (book.getProgressPercentage() > 0) {
+                bookProgress.setVisibility(View.VISIBLE);
+                bookProgress.setProgress(book.getProgressPercentage());
+            } else {
+                bookProgress.setVisibility(View.GONE);
             }
 
             Glide.with(itemView.getContext())

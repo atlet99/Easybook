@@ -1,15 +1,25 @@
 package com.metimol.easybook.database;
 
 import android.content.Context;
+import androidx.annotation.NonNull;
 import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
+import androidx.room.migration.Migration;
+import androidx.sqlite.db.SupportSQLiteDatabase;
 
-@Database(entities = {Book.class, Chapter.class}, version = 2, exportSchema = false) // <-- DB version
+@Database(entities = {Book.class, Chapter.class}, version = 3, exportSchema = false)
 public abstract class AppDatabase extends RoomDatabase {
     public abstract AudiobookDao audiobookDao();
 
     private static volatile AppDatabase INSTANCE;
+
+    static final Migration MIGRATION_2_3 = new Migration(2, 3) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
+            database.execSQL("ALTER TABLE books ADD COLUMN progressPercentage INTEGER NOT NULL DEFAULT 0");
+        }
+    };
 
     public static AppDatabase getDatabase(final Context context) {
         if (INSTANCE == null) {
@@ -17,7 +27,7 @@ public abstract class AppDatabase extends RoomDatabase {
                 if (INSTANCE == null) {
                     INSTANCE = Room.databaseBuilder(context.getApplicationContext(),
                                     AppDatabase.class, "audiobook_database")
-                            .fallbackToDestructiveMigration() // <-- destructive migration
+                            .addMigrations(MIGRATION_2_3)
                             .build();
                 }
             }

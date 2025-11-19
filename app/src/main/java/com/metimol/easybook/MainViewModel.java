@@ -32,6 +32,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.Map;
+import java.util.HashMap;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -220,6 +222,7 @@ public class MainViewModel extends AndroidViewModel {
                 dbBook.currentChapterId = null;
                 dbBook.currentTimestamp = 0;
                 dbBook.lastListened = 0;
+                dbBook.progressPercentage = 0;
                 audiobookDao.insertBook(dbBook);
             } else {
                 Boolean currentStatus = isBookFavorite.getValue();
@@ -246,15 +249,16 @@ public class MainViewModel extends AndroidViewModel {
                 dbBook.currentChapterId = null;
                 dbBook.currentTimestamp = 0;
                 dbBook.lastListened = now;
+                dbBook.progressPercentage = 100;
                 audiobookDao.insertBook(dbBook);
             } else {
                 Boolean currentStatus = isBookFinished.getValue();
                 boolean newStatus = currentStatus == null || !currentStatus;
-                audiobookDao.updateFinishedStatus(bookId, newStatus);
+                audiobookDao.updateFinishedStatus(bookId, newStatus, newStatus ? 100 : 0);
                 if (newStatus) {
-                    audiobookDao.updateBookProgress(bookId, null, 0, now, true);
+                    audiobookDao.updateBookProgress(bookId, null, 0, now, true, 100);
                 } else {
-                    audiobookDao.updateBookProgress(bookId, null, 0, now, false);
+                    audiobookDao.updateBookProgress(bookId, null, 0, now, false, 0);
                 }
             }
         });
@@ -288,7 +292,9 @@ public class MainViewModel extends AndroidViewModel {
                         Response<ApiResponse<BookData>> response = call.execute();
 
                         if (response.isSuccessful() && response.body() != null && response.body().getData() != null && response.body().getData().getBook() != null) {
-                            apiBooksToShow.add(response.body().getData().getBook());
+                            Book apiBook = response.body().getData().getBook();
+                            updateBookProgress(apiBook, dbBook);
+                            apiBooksToShow.add(apiBook);
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -335,7 +341,9 @@ public class MainViewModel extends AndroidViewModel {
                         Response<ApiResponse<BookData>> response = call.execute();
 
                         if (response.isSuccessful() && response.body() != null && response.body().getData() != null && response.body().getData().getBook() != null) {
-                            apiBooksToShow.add(response.body().getData().getBook());
+                            Book apiBook = response.body().getData().getBook();
+                            updateBookProgress(apiBook, dbBook);
+                            apiBooksToShow.add(apiBook);
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -383,7 +391,9 @@ public class MainViewModel extends AndroidViewModel {
                         Response<ApiResponse<BookData>> response = call.execute();
 
                         if (response.isSuccessful() && response.body() != null && response.body().getData() != null && response.body().getData().getBook() != null) {
-                            apiBooksToShow.add(response.body().getData().getBook());
+                            Book apiBook = response.body().getData().getBook();
+                            updateBookProgress(apiBook, dbBook);
+                            apiBooksToShow.add(apiBook);
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -529,18 +539,44 @@ public class MainViewModel extends AndroidViewModel {
     }
 
     private void handleBookResponse(List<Book> newBooks) {
-        if (newBooks.isEmpty()) {
-            isLastPage = true;
-        } else {
-            List<Book> currentBooks = books.getValue();
-            List<Book> updatedBooks = new ArrayList<>();
-            if (currentBooks != null) {
-                updatedBooks.addAll(currentBooks);
-            }
-            updatedBooks.addAll(newBooks);
-            books.setValue(updatedBooks);
+        databaseExecutor.execute(() -> {
+            if (!newBooks.isEmpty()) {
+                List<com.metimol.easybook.database.Book> dbBooks = audiobookDao.getAllBooksProgress();
+                Map<String, com.metimol.easybook.database.Book> dbMap = new HashMap<>();
+                for (com.metimol.easybook.database.Book dbBook : dbBooks) {
+                    dbMap.put(dbBook.id, dbBook);
+                }
 
-            currentPage++;
+                for (Book apiBook : newBooks) {
+                    if (dbMap.containsKey(apiBook.getId())) {
+                        updateBookProgress(apiBook, dbMap.get(apiBook.getId()));
+                    }
+                }
+            }
+
+            new Handler(Looper.getMainLooper()).post(() -> {
+                if (newBooks.isEmpty()) {
+                    isLastPage = true;
+                } else {
+                    List<Book> currentBooks = books.getValue();
+                    List<Book> updatedBooks = new ArrayList<>();
+                    if (currentBooks != null) {
+                        updatedBooks.addAll(currentBooks);
+                    }
+                    updatedBooks.addAll(newBooks);
+                    books.setValue(updatedBooks);
+
+                    currentPage++;
+                }
+            });
+        });
+    }
+
+    private void updateBookProgress(Book apiBook, com.metimol.easybook.database.Book dbBook) {
+        if (dbBook.isFinished) {
+            apiBook.setProgressPercentage(100);
+        } else {
+            apiBook.setProgressPercentage(dbBook.progressPercentage);
         }
     }
 
@@ -602,7 +638,23 @@ public class MainViewModel extends AndroidViewModel {
                     if (data.getBookListResponse() != null && data.getBookListResponse().getItems() != null) {
                         searchResults.addAll(data.getBookListResponse().getItems());
                     }
-                    books.setValue(searchResults);
+
+                    databaseExecutor.execute(() -> {
+                        List<com.metimol.easybook.database.Book> dbBooks = audiobookDao.getAllBooksProgress();
+                        Map<String, com.metimol.easybook.database.Book> dbMap = new HashMap<>();
+                        for (com.metimol.easybook.database.Book dbBook : dbBooks) {
+                            dbMap.put(dbBook.id, dbBook);
+                        }
+
+                        for (Book apiBook : searchResults) {
+                            if (dbMap.containsKey(apiBook.getId())) {
+                                updateBookProgress(apiBook, dbMap.get(apiBook.getId()));
+                            }
+                        }
+
+                        new Handler(Looper.getMainLooper()).post(() -> books.setValue(searchResults));
+                    });
+
                 } else {
                     anyRequestFailed.set(true);
                     books.setValue(new ArrayList<>());

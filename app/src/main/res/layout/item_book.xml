@@ -21,6 +21,17 @@
             android:scaleType="centerCrop"
             tools:background="@drawable/ic_placeholder_book" />
 
+        <ProgressBar
+            android:id="@+id/book_progress"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="4dp"
+            android:layout_gravity="bottom"
+            android:progressTint="@color/green"
+            android:visibility="gone"
+            tools:progress="50"
+            tools:visibility="visible" />
+
     </com.google.android.material.card.MaterialCardView>
 
     <TextView

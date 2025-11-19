@@ -25,4 +25,7 @@ public class Book {
 
     @ColumnInfo(name = "lastListened")
     public long lastListened;
+
+    @ColumnInfo(name = "progressPercentage")
+    public int progressPercentage;
 }

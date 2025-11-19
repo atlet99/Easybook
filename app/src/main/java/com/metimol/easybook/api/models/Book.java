@@ -33,11 +33,11 @@ public class Book {
     @SerializedName("totalDuration")
     private int totalDuration;
 
-    // For detailed book request
     @SerializedName("files")
     private BookFiles files;
 
-    // Getters
+    private int progressPercentage;
+
     public String getId() { return id; }
     public String getName() { return name; }
     public String getUrlName() { return urlName; }
@@ -53,4 +53,7 @@ public class Book {
     public String getDefaultPosterMain() { return defaultPosterMain; }
     public int getTotalDuration() { return totalDuration; }
     public BookFiles getFiles() { return files; }
+
+    public int getProgressPercentage() { return progressPercentage; }
+    public void setProgressPercentage(int progressPercentage) { this.progressPercentage = progressPercentage; }
 }

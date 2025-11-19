@@ -362,6 +362,8 @@ public class PlaybackService extends MediaSessionService {
         long timestamp = (position > 0) ? position : 0L;
         long lastListened = System.currentTimeMillis();
 
+        int percentage = calculateProgressPercentage(book, chapter, timestamp);
+
         databaseExecutor.execute(() -> {
             boolean bookExists = audiobookDao.bookExists(bookId);
             if (!bookExists) {
@@ -372,11 +374,35 @@ public class PlaybackService extends MediaSessionService {
                 dbBook.currentChapterId = chapterId;
                 dbBook.currentTimestamp = timestamp;
                 dbBook.lastListened = lastListened;
+                dbBook.progressPercentage = percentage;
                 audiobookDao.insertBook(dbBook);
             } else {
-                audiobookDao.updateBookProgress(bookId, chapterId, timestamp, lastListened, false);
+                audiobookDao.updateBookProgress(bookId, chapterId, timestamp, lastListened, false, percentage);
             }
         });
+    }
+
+    private int calculateProgressPercentage(Book book, BookFile currentChapter, long positionMs) {
+        if (book.getTotalDuration() <= 0 || book.getFiles() == null || book.getFiles().getFull() == null) {
+            return 0;
+        }
+
+        long totalPlayedMs = 0;
+        List<BookFile> files = book.getFiles().getFull();
+
+        for (BookFile file : files) {
+            if (file.getIndex() < currentChapter.getIndex()) {
+                totalPlayedMs += file.getDuration() * 1000L;
+            }
+        }
+
+        totalPlayedMs += positionMs;
+        long totalBookDurationMs = book.getTotalDuration() * 1000L;
+
+        if (totalBookDurationMs <= 0) return 0;
+
+        int percent = (int) ((totalPlayedMs * 100) / totalBookDurationMs);
+        return Math.min(Math.max(percent, 0), 100);
     }
 
     private void markCurrentBookAsFinished() {
@@ -395,12 +421,13 @@ public class PlaybackService extends MediaSessionService {
                 dbBook.currentChapterId = null;
                 dbBook.currentTimestamp = 0;
                 dbBook.lastListened = System.currentTimeMillis();
+                dbBook.progressPercentage = 100;
                 audiobookDao.insertBook(dbBook);
             } else {
                 com.metimol.easybook.database.Book dbBook = audiobookDao.getBookById(bookId);
                 if (dbBook != null && !dbBook.isFinished) {
-                    audiobookDao.updateFinishedStatus(bookId, true);
-                    audiobookDao.updateBookProgress(bookId, null, 0, System.currentTimeMillis(), true);
+                    audiobookDao.updateFinishedStatus(bookId, true, 100);
+                    audiobookDao.updateBookProgress(bookId, null, 0, System.currentTimeMillis(), true, 100);
                 }
             }
         });
@@ -466,6 +493,8 @@ public class PlaybackService extends MediaSessionService {
             String chapterId = String.valueOf(startingChapter.getId());
             long lastListened = System.currentTimeMillis();
 
+            int percentage = calculateProgressPercentage(book, startingChapter, timestamp);
+
             if (!audiobookDao.bookExists(bookId)) {
                 com.metimol.easybook.database.Book dbBook = new com.metimol.easybook.database.Book();
                 dbBook.id = bookId;
@@ -474,10 +503,11 @@ public class PlaybackService extends MediaSessionService {
                 dbBook.currentChapterId = chapterId;
                 dbBook.currentTimestamp = timestamp;
                 dbBook.lastListened = lastListened;
+                dbBook.progressPercentage = percentage;
                 audiobookDao.insertBook(dbBook);
             } else {
-                audiobookDao.updateFinishedStatus(bookId, false);
-                audiobookDao.updateBookProgress(bookId, chapterId, timestamp, lastListened, false);
+                audiobookDao.updateFinishedStatus(bookId, false, percentage);
+                audiobookDao.updateBookProgress(bookId, chapterId, timestamp, lastListened, false, percentage);
             }
         });
 

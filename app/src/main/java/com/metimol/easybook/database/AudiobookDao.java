@@ -17,8 +17,8 @@ public interface AudiobookDao {
     @Query("UPDATE books SET isFavorite = :isFavorite WHERE id = :bookId")
     void updateFavoriteStatus(String bookId, boolean isFavorite);
 
-    @Query("UPDATE books SET currentChapterId = :chapterId, currentTimestamp = :timestamp, lastListened = :lastListened, isFinished = :isFinished WHERE id = :bookId")
-    void updateBookProgress(String bookId, String chapterId, long timestamp, long lastListened, boolean isFinished);
+    @Query("UPDATE books SET currentChapterId = :chapterId, currentTimestamp = :timestamp, lastListened = :lastListened, isFinished = :isFinished, progressPercentage = :progressPercentage WHERE id = :bookId")
+    void updateBookProgress(String bookId, String chapterId, long timestamp, long lastListened, boolean isFinished, int progressPercentage);
 
     @Query("SELECT * FROM books WHERE id = :bookId")
     Book getBookById(String bookId);
@@ -35,8 +35,8 @@ public interface AudiobookDao {
     @Query("SELECT isFinished FROM books WHERE id = :bookId")
     LiveData<Boolean> isBookFinished(String bookId);
 
-    @Query("UPDATE books SET isFinished = :isFinished WHERE id = :bookId")
-    void updateFinishedStatus(String bookId, boolean isFinished);
+    @Query("UPDATE books SET isFinished = :isFinished, progressPercentage = :progressPercentage WHERE id = :bookId")
+    void updateFinishedStatus(String bookId, boolean isFinished, int progressPercentage);
 
     @Query("SELECT * FROM books WHERE isFinished = 1")
     List<Book> getFinishedBooksList();
@@ -46,4 +46,7 @@ public interface AudiobookDao {
 
     @Query("SELECT * FROM books WHERE isFinished = 0 AND currentTimestamp > 0 ORDER BY lastListened DESC LIMIT 1")
     Book getLastListenedBook();
+
+    @Query("SELECT * FROM books")
+    List<Book> getAllBooksProgress();
 }
