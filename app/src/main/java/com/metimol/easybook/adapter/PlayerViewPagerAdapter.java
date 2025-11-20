@@ -186,8 +186,8 @@ public class PlayerViewPagerAdapter extends RecyclerView.Adapter<PlayerViewPager
             updateProgressUI(playbackService.currentPosition.getValue() != null ? playbackService.currentPosition.getValue() : 0L);
             updateLoadingState(Boolean.TRUE.equals(playbackService.isLoading.getValue()));
             updateBufferedPosition(playbackService.bufferedPosition.getValue() != null ? playbackService.bufferedPosition.getValue() : 0L);
-            controlsViewHolder.btnNextCard.setVisibility(Boolean.TRUE.equals(playbackService.hasNext.getValue()) ? View.VISIBLE : View.INVISIBLE);
-            controlsViewHolder.btnPrevCard.setVisibility(Boolean.TRUE.equals(playbackService.hasPrevious.getValue()) ? View.VISIBLE : View.INVISIBLE);
+            controlsViewHolder.btnNextCard.setVisibility(Boolean.TRUE.equals(playbackService.hasNext.getValue()) ? View.VISIBLE : View.GONE);
+            controlsViewHolder.btnPrevCard.setVisibility(Boolean.TRUE.equals(playbackService.hasPrevious.getValue()) ? View.VISIBLE : View.GONE);
         }
     }
 
@@ -226,10 +226,10 @@ public class PlayerViewPagerAdapter extends RecyclerView.Adapter<PlayerViewPager
         playbackService.isLoading.observe(lifecycleOwner, this::updateLoadingState);
         playbackService.bufferedPosition.observe(lifecycleOwner, this::updateBufferedPosition);
         playbackService.hasNext.observe(lifecycleOwner, hasNext -> {
-            if (controlsViewHolder != null) controlsViewHolder.btnNextCard.setVisibility(hasNext ? View.VISIBLE : View.INVISIBLE);
+            if (controlsViewHolder != null) controlsViewHolder.btnNextCard.setVisibility(hasNext ? View.VISIBLE : View.GONE);
         });
         playbackService.hasPrevious.observe(lifecycleOwner, hasPrevious -> {
-            if (controlsViewHolder != null) controlsViewHolder.btnPrevCard.setVisibility(hasPrevious ? View.VISIBLE : View.INVISIBLE);
+            if (controlsViewHolder != null) controlsViewHolder.btnPrevCard.setVisibility(hasPrevious ? View.VISIBLE : View.GONE);
         });
     }
 
