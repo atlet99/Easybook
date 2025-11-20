@@ -116,6 +116,18 @@ public class PlayerViewPagerAdapter extends RecyclerView.Adapter<PlayerViewPager
             }
         });
 
+        holder.btnRewind.setOnClickListener(v -> {
+            if (playbackService != null) {
+                playbackService.rewind();
+            }
+        });
+
+        holder.btnForward.setOnClickListener(v -> {
+            if (playbackService != null) {
+                playbackService.fastForward();
+            }
+        });
+
         holder.playerSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -297,6 +309,7 @@ public class PlayerViewPagerAdapter extends RecyclerView.Adapter<PlayerViewPager
         SeekBar playerSeekBar;
         FloatingActionButton btnPlayPause;
         CardView btnPrevCard, btnNextCard;
+        ImageView btnRewind, btnForward;
         CircularProgressDrawable progressDrawable;
         ProgressBar loadingProgressBar;
 
@@ -311,6 +324,8 @@ public class PlayerViewPagerAdapter extends RecyclerView.Adapter<PlayerViewPager
             btnPlayPause = itemView.findViewById(R.id.btn_play_pause);
             btnPrevCard = itemView.findViewById(R.id.btn_prev_card);
             btnNextCard = itemView.findViewById(R.id.btn_next_card);
+            btnRewind = itemView.findViewById(R.id.btn_rewind);
+            btnForward = itemView.findViewById(R.id.btn_forward);
             loadingProgressBar = itemView.findViewById(R.id.loading_progress_bar);
 
             progressDrawable = new CircularProgressDrawable(itemView.getContext());

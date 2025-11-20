@@ -572,6 +572,31 @@ public class PlaybackService extends MediaSessionService {
         currentPosition.postValue(position);
     }
 
+    public void fastForward() {
+        if (player != null) {
+            long currentPosition = player.getCurrentPosition();
+            long duration = player.getDuration();
+            long newPosition = currentPosition + 10000;
+            if (newPosition > duration) {
+                newPosition = duration;
+            }
+            player.seekTo(newPosition);
+            this.currentPosition.postValue(newPosition);
+        }
+    }
+
+    public void rewind() {
+        if (player != null) {
+            long currentPosition = player.getCurrentPosition();
+            long newPosition = currentPosition - 10000;
+            if (newPosition < 0) {
+                newPosition = 0;
+            }
+            player.seekTo(newPosition);
+            this.currentPosition.postValue(newPosition);
+        }
+    }
+
     public static String formatDuration(long millis) {
         if (millis <= 0) {
             return "00:00";
