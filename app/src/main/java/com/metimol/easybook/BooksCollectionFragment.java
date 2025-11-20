@@ -58,7 +58,7 @@ public class BooksCollectionFragment extends Fragment {
                 sourceName = getString(R.string.listened);
             } else if ("LISTENING".equals(getArguments().getString("sourceType"))) {
                 sourceType = "LISTENING";
-                sourceName = "Слушаю";
+                sourceName = getString(R.string.listen);
             } else if (getArguments().containsKey("categoryId")) {
                 sourceType = "GENRE";
                 sourceId = getArguments().getString("categoryId");
