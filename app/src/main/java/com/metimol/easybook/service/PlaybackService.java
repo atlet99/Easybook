@@ -78,6 +78,8 @@ public class PlaybackService extends MediaSessionService {
     private ExecutorService databaseExecutor;
     private boolean isFinishCheckPending = false;
 
+    private long lastPrevClickTime = 0;
+
     public class PlaybackBinder extends Binder {
         public PlaybackService getService() {
             return PlaybackService.this;
@@ -250,8 +252,7 @@ public class PlaybackService extends MediaSessionService {
                         long duration = player.getDuration();
                         totalDuration.postValue(duration > 0 ? duration : 0L);
 
-                        hasNext.postValue(player.hasNextMediaItem());
-                        hasPrevious.postValue(player.hasPreviousMediaItem());
+                        updateNavigationVisibility();
                     }
                 }
             }
@@ -263,8 +264,7 @@ public class PlaybackService extends MediaSessionService {
                     totalDuration.postValue(duration > 0 ? duration : 0L);
                     currentPosition.postValue(player.getCurrentPosition() > 0 ? player.getCurrentPosition() : 0L);
                     bufferedPosition.postValue(player.getBufferedPosition() > 0 ? player.getBufferedPosition() : 0L);
-                    hasNext.postValue(player.hasNextMediaItem());
-                    hasPrevious.postValue(player.hasPreviousMediaItem());
+                    updateNavigationVisibility();
                     isLoading.postValue(false);
                 } else if (playbackState == Player.STATE_ENDED) {
                     isPlaying.postValue(false);
@@ -463,6 +463,7 @@ public class PlaybackService extends MediaSessionService {
         boolean isSameBook = book.getId().equals(currentBook.getValue() != null ? currentBook.getValue().getId() : null);
 
         isFinishCheckPending = false;
+        lastPrevClickTime = 0;
 
         currentBook.setValue(book);
         List<BookFile> chapters = book.getFiles().getFull();
@@ -557,13 +558,28 @@ public class PlaybackService extends MediaSessionService {
         if (player.hasNextMediaItem()) {
             player.seekToNextMediaItem();
             player.play();
+        } else {
+            player.seekTo(player.getDuration());
         }
     }
 
     public void skipToPrevious() {
-        if (player.hasPreviousMediaItem()) {
-            player.seekToPreviousMediaItem();
-            player.play();
+        long currentTime = System.currentTimeMillis();
+        if (currentTime - lastPrevClickTime < 500) {
+            return;
+        }
+        lastPrevClickTime = currentTime;
+
+        long position = player.getCurrentPosition();
+        if (position > 5000) {
+            seekTo(0);
+        } else {
+            if (player.hasPreviousMediaItem()) {
+                player.seekToPreviousMediaItem();
+                player.play();
+            } else {
+                seekTo(0);
+            }
         }
     }
 
@@ -610,5 +626,15 @@ public class PlaybackService extends MediaSessionService {
         } else {
             return String.format(Locale.getDefault(), "%02d:%02d", minutes, seconds);
         }
+    }
+
+    private void updateNavigationVisibility() {
+        Book book = currentBook.getValue();
+        boolean showNav = false;
+        if (book != null && book.getFiles() != null && book.getFiles().getFull() != null) {
+            showNav = book.getFiles().getFull().size() > 1;
+        }
+        hasNext.postValue(showNav);
+        hasPrevious.postValue(showNav);
     }
 }
