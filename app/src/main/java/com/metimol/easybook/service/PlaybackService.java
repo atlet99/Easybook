@@ -358,7 +358,7 @@ public class PlaybackService extends MediaSessionService {
         NotificationChannel serviceChannel = new NotificationChannel(
                 CHANNEL_ID,
                 "Playback Service Channel",
-                NotificationManager.IMPORTANCE_DEFAULT
+                NotificationManager.IMPORTANCE_LOW
         );
         serviceChannel.setDescription("Media playback controls");
         serviceChannel.setShowBadge(false);
