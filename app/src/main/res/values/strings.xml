@@ -107,4 +107,10 @@
     <string name="next">Дальше</string>
     <string name="nothing_is_playing">Ничего не проигрывается</string>
     <string name="audiobook">Аудиокнига</string>
+
+    <!--Settings Screen-->
+    <string name="playback_speed">Скорость воспроизведения</string>
+    <string name="minus">-</string>
+    <string name="plus">+</string>
+    <string name="speed_1_00x">1.00x</string>
 </resources>

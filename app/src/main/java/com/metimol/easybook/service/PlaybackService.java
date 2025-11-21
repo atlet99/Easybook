@@ -1,10 +1,15 @@
 package com.metimol.easybook.service;
 
+import static com.metimol.easybook.MainActivity.APP_PREFERENCES;
+import static com.metimol.easybook.SettingsFragment.SPEED_KEY;
+
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -21,6 +26,7 @@ import androidx.media3.common.AudioAttributes;
 import androidx.media3.common.C;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.MediaMetadata;
+import androidx.media3.common.PlaybackParameters;
 import androidx.media3.common.Player;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.exoplayer.DefaultLoadControl;
@@ -296,6 +302,10 @@ public class PlaybackService extends MediaSessionService {
                 }
             }
         };
+
+        SharedPreferences prefs = getSharedPreferences(APP_PREFERENCES, Context.MODE_PRIVATE);
+        float savedSpeed = prefs.getFloat(SPEED_KEY, 1.0f);
+        setPlaybackSpeed(savedSpeed);
     }
 
     private void checkBookFinishedCondition(long currentPosition) {
@@ -636,5 +646,11 @@ public class PlaybackService extends MediaSessionService {
         }
         hasNext.postValue(showNav);
         hasPrevious.postValue(showNav);
+    }
+
+    public void setPlaybackSpeed(float speed) {
+        if (player != null) {
+            player.setPlaybackParameters(new PlaybackParameters(speed, 1.0f));
+        }
     }
 }

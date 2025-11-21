@@ -90,6 +90,13 @@ public class MainViewModel extends AndroidViewModel {
         }
     }
 
+    public void updatePlaybackSpeed(float speed) {
+        PlaybackService service = playbackService.getValue();
+        if (service != null) {
+            service.setPlaybackSpeed(speed);
+        }
+    }
+
     private void restoreLastPlayerState(PlaybackService service) {
         databaseExecutor.execute(() -> {
             com.metimol.easybook.database.Book lastDbBook = audiobookDao.getLastListenedBook();
