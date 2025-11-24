@@ -9,11 +9,15 @@
 
     <androidx.cardview.widget.CardView
         android:id="@+id/cv_book_cover"
-        android:layout_width="200dp"
-        android:layout_height="200dp"
-        android:layout_marginTop="20dp"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="16dp"
         app:cardCornerRadius="12dp"
         app:cardElevation="8dp"
+        app:layout_constraintDimensionRatio="1:1"
+        app:layout_constraintWidth_percent="0.5"
+        app:layout_constraintVertical_weight="1"
+        app:layout_constraintBottom_toTopOf="@+id/tv_episode_title"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -27,32 +31,19 @@
             android:contentDescription="@null" />
     </androidx.cardview.widget.CardView>
 
-    <ImageView
-        android:id="@+id/btn_sleep_timer"
-        android:layout_width="24dp"
-        android:layout_height="24dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginTop="16dp"
-        android:contentDescription="@string/sleep_timer"
-        android:src="@drawable/ic_timer"
-        android:clickable="true"
-        android:focusable="true"
-        app:tint="@color/light_grey"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"/>
-
     <TextView
         android:id="@+id/tv_episode_title"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="24dp"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="16dp"
         android:fontFamily="@font/sf_pro_display_bold"
         android:textAlignment="center"
         android:textColor="@color/black"
         android:textSize="20sp"
         android:maxLines="2"
         android:ellipsize="end"
+        app:layout_constraintBottom_toTopOf="@+id/tv_book_author"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/cv_book_cover"
@@ -62,12 +53,13 @@
         android:id="@+id/tv_book_author"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="4dp"
         android:fontFamily="@font/sf_pro"
         android:textAlignment="center"
         android:textColor="@color/light_grey"
         android:textSize="16sp"
         android:maxLines="1"
+        app:layout_constraintBottom_toTopOf="@+id/player_seek_bar"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tv_episode_title"
@@ -78,10 +70,11 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="16dp"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="24dp"
         android:progressTint="@color/green"
         android:thumbTint="@color/green"
         android:secondaryProgressTint="@color/light_grey"
+        app:layout_constraintBottom_toTopOf="@+id/tv_current_time"
         app:layout_constraintTop_toBottomOf="@id/tv_book_author" />
 
     <TextView
@@ -93,6 +86,7 @@
         android:fontFamily="@font/sf_pro"
         android:textColor="@color/green"
         android:textSize="13sp"
+        app:layout_constraintBottom_toTopOf="@+id/controls_layout"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/player_seek_bar"
         tools:text="12:04" />
@@ -115,10 +109,10 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="24dp"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="16dp"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/bottom_controls"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tv_current_time">
@@ -231,5 +225,49 @@
             app:tint="@color/light_grey"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <LinearLayout
+        android:id="@+id/bottom_controls"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="32dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/controls_layout"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <TextView
+            android:id="@+id/btn_speed"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/black"
+            android:textSize="16sp"
+            android:fontFamily="@font/sf_pro"
+            android:textStyle="bold"
+            android:padding="8dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            tools:text="@string/speed_1_0x" />
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+
+        <ImageView
+            android:id="@+id/btn_sleep_timer"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:contentDescription="@string/sleep_timer"
+            android:src="@drawable/ic_timer"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            app:tint="@color/light_grey" />
+
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -11,7 +11,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.RadioGroup;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -20,10 +19,6 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.fragment.NavHostFragment;
-
-import com.google.android.material.button.MaterialButton;
-
-import java.util.Locale;
 
 public class SettingsFragment extends Fragment {
 
@@ -36,11 +31,6 @@ public class SettingsFragment extends Fragment {
 
     private SharedPreferences sharedPreferences;
     private RadioGroup themeRadioGroup;
-    private MainViewModel mainViewModel;
-
-    private TextView tvSpeedValue;
-    private final float[] availableSpeeds = {0.5f, 0.75f, 1.0f, 1.25f, 1.5f, 1.75f, 2.0f};
-    private int currentSpeedIndex = 2;
 
     @Nullable
     @Override
@@ -55,14 +45,10 @@ public class SettingsFragment extends Fragment {
         Context context = requireContext();
         sharedPreferences = context.getSharedPreferences(APP_PREFERENCES, Context.MODE_PRIVATE);
 
-        mainViewModel = new ViewModelProvider(requireActivity()).get(MainViewModel.class);
+        MainViewModel mainViewModel = new ViewModelProvider(requireActivity()).get(MainViewModel.class);
         ConstraintLayout settingsContainer = view.findViewById(R.id.settings_container);
         ImageView ivBack = view.findViewById(R.id.iv_back);
         themeRadioGroup = view.findViewById(R.id.theme_radio_group);
-
-        tvSpeedValue = view.findViewById(R.id.tv_speed_value);
-        MaterialButton btnMinus = view.findViewById(R.id.btn_speed_minus);
-        MaterialButton btnPlus = view.findViewById(R.id.btn_speed_plus);
 
         ivBack.setOnClickListener(v -> NavHostFragment.findNavController(this).popBackStack());
 
@@ -76,7 +62,6 @@ public class SettingsFragment extends Fragment {
         });
 
         loadThemeSettings();
-        loadSpeedSettings();
 
         themeRadioGroup.setOnCheckedChangeListener((group, checkedId) -> {
             int themeMode = THEME_AUTO;
@@ -87,22 +72,6 @@ public class SettingsFragment extends Fragment {
             }
 
             saveAndApplyTheme(themeMode);
-        });
-
-        btnMinus.setOnClickListener(v -> {
-            if (currentSpeedIndex > 0) {
-                currentSpeedIndex--;
-                updateSpeedUI();
-                saveAndApplySpeed();
-            }
-        });
-
-        btnPlus.setOnClickListener(v -> {
-            if (currentSpeedIndex < availableSpeeds.length - 1) {
-                currentSpeedIndex++;
-                updateSpeedUI();
-                saveAndApplySpeed();
-            }
         });
     }
 
@@ -117,26 +86,6 @@ public class SettingsFragment extends Fragment {
         }
     }
 
-    private void loadSpeedSettings() {
-        float currentSpeed = sharedPreferences.getFloat(SPEED_KEY, 1.0f);
-        currentSpeedIndex = 2;
-
-        float minDiff = Float.MAX_VALUE;
-        for (int i = 0; i < availableSpeeds.length; i++) {
-            float diff = Math.abs(currentSpeed - availableSpeeds[i]);
-            if (diff < minDiff) {
-                minDiff = diff;
-                currentSpeedIndex = i;
-            }
-        }
-        updateSpeedUI();
-    }
-
-    private void updateSpeedUI() {
-        float speed = availableSpeeds[currentSpeedIndex];
-        tvSpeedValue.setText(String.format(Locale.US, "%.2fx", speed));
-    }
-
     private void saveAndApplyTheme(int themeMode) {
         sharedPreferences.edit().putInt(THEME_KEY, themeMode).apply();
 
@@ -147,11 +96,5 @@ public class SettingsFragment extends Fragment {
         } else {
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
         }
-    }
-
-    private void saveAndApplySpeed() {
-        float speed = availableSpeeds[currentSpeedIndex];
-        sharedPreferences.edit().putFloat(SPEED_KEY, speed).apply();
-        mainViewModel.updatePlaybackSpeed(speed);
     }
 }

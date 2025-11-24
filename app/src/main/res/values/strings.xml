@@ -107,6 +107,7 @@
     <string name="next">Дальше</string>
     <string name="nothing_is_playing">Ничего не проигрывается</string>
     <string name="audiobook">Аудиокнига</string>
+
     <string name="sleep_timer">Таймер сна</string>
     <string name="timer_off">Выключен</string>
     <string name="timer_5_min">5 минут</string>
@@ -116,9 +117,12 @@
     <string name="timer_60_min">60 минут</string>
     <string name="timer_end_of_chapter">Конец главы</string>
 
-    <!--Settings Screen-->
     <string name="playback_speed">Скорость воспроизведения</string>
-    <string name="minus">-</string>
-    <string name="plus">+</string>
-    <string name="speed_1_00x">1.00x</string>
+    <string name="speed_0_5x">0.5x</string>
+    <string name="speed_0_75x">0.75x</string>
+    <string name="speed_1_0x">1.0x</string>
+    <string name="speed_1_25x">1.25x</string>
+    <string name="speed_1_5x">1.5x</string>
+    <string name="speed_1_75x">1.75x</string>
+    <string name="speed_2_0x">2.0x</string>
 </resources>

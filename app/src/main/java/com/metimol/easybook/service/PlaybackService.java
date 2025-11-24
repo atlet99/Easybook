@@ -74,6 +74,7 @@ public class PlaybackService extends MediaSessionService {
     public final MutableLiveData<Boolean> hasPrevious = new MutableLiveData<>(false);
     public final MutableLiveData<Boolean> isLoading = new MutableLiveData<>(false);
     public final MutableLiveData<Long> bufferedPosition = new MutableLiveData<>(0L);
+    public final MutableLiveData<Float> playbackSpeed = new MutableLiveData<>(1.0f);
 
     public final MutableLiveData<Boolean> isSleepTimerActive = new MutableLiveData<>(false);
     private long sleepTimerEndTime = 0;
@@ -687,6 +688,7 @@ public class PlaybackService extends MediaSessionService {
     public void setPlaybackSpeed(float speed) {
         if (player != null) {
             player.setPlaybackParameters(new PlaybackParameters(speed, 1.0f));
+            playbackSpeed.postValue(speed);
         }
     }
 }

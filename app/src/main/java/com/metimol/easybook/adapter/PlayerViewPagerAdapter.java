@@ -1,5 +1,10 @@
 package com.metimol.easybook.adapter;
 
+import static com.metimol.easybook.MainActivity.APP_PREFERENCES;
+import static com.metimol.easybook.SettingsFragment.SPEED_KEY;
+
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -29,6 +34,7 @@ import com.metimol.easybook.api.models.BookFile;
 import com.metimol.easybook.service.PlaybackService;
 
 import java.util.ArrayList;
+import java.util.Locale;
 import java.util.Objects;
 
 public class PlayerViewPagerAdapter extends RecyclerView.Adapter<PlayerViewPagerAdapter.PageViewHolder> {
@@ -142,6 +148,8 @@ public class PlayerViewPagerAdapter extends RecyclerView.Adapter<PlayerViewPager
 
         holder.btnSleepTimer.setOnClickListener(v -> showSleepTimerDialog(holder.itemView.getContext()));
 
+        holder.btnSpeed.setOnClickListener(v -> showSpeedDialog(holder.itemView.getContext()));
+
         holder.playerSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -201,6 +209,7 @@ public class PlayerViewPagerAdapter extends RecyclerView.Adapter<PlayerViewPager
             updateLoadingState(Boolean.TRUE.equals(playbackService.isLoading.getValue()));
             updateBufferedPosition(playbackService.bufferedPosition.getValue() != null ? playbackService.bufferedPosition.getValue() : 0L);
             updateTimerState(Boolean.TRUE.equals(playbackService.isSleepTimerActive.getValue()));
+            updateSpeedUI(playbackService.playbackSpeed.getValue() != null ? playbackService.playbackSpeed.getValue() : 1.0f);
             controlsViewHolder.btnNextCard.setVisibility(Boolean.TRUE.equals(playbackService.hasNext.getValue()) ? View.VISIBLE : View.GONE);
             controlsViewHolder.btnPrevCard.setVisibility(Boolean.TRUE.equals(playbackService.hasPrevious.getValue()) ? View.VISIBLE : View.GONE);
         }
@@ -241,6 +250,7 @@ public class PlayerViewPagerAdapter extends RecyclerView.Adapter<PlayerViewPager
         playbackService.isLoading.observe(lifecycleOwner, this::updateLoadingState);
         playbackService.bufferedPosition.observe(lifecycleOwner, this::updateBufferedPosition);
         playbackService.isSleepTimerActive.observe(lifecycleOwner, this::updateTimerState);
+        playbackService.playbackSpeed.observe(lifecycleOwner, this::updateSpeedUI);
         playbackService.hasNext.observe(lifecycleOwner, hasNext -> {
             if (controlsViewHolder != null) controlsViewHolder.btnNextCard.setVisibility(hasNext ? View.VISIBLE : View.GONE);
         });
@@ -323,6 +333,11 @@ public class PlayerViewPagerAdapter extends RecyclerView.Adapter<PlayerViewPager
         }
     }
 
+    private void updateSpeedUI(float speed) {
+        if (controlsViewHolder == null) return;
+        controlsViewHolder.btnSpeed.setText(String.format(Locale.US, "%.2fx", speed));
+    }
+
     private void showSleepTimerDialog(android.content.Context context) {
         BottomSheetDialog dialog = new BottomSheetDialog(context, R.style.CustomBottomSheetDialogTheme);
         dialog.setContentView(R.layout.fragment_timer_dialog);
@@ -374,6 +389,35 @@ public class PlayerViewPagerAdapter extends RecyclerView.Adapter<PlayerViewPager
         dialog.show();
     }
 
+    private void showSpeedDialog(Context context) {
+        BottomSheetDialog dialog = new BottomSheetDialog(context, R.style.CustomBottomSheetDialogTheme);
+        dialog.setContentView(R.layout.fragment_speed_dialog);
+
+        if (mainViewModel == null) return;
+
+        float[] speeds = {0.5f, 0.75f, 1.0f, 1.25f, 1.5f, 1.75f, 2.0f};
+        int[] viewIds = {
+                R.id.speed_0_5, R.id.speed_0_75, R.id.speed_1_0,
+                R.id.speed_1_25, R.id.speed_1_5, R.id.speed_1_75, R.id.speed_2_0
+        };
+
+        for (int i = 0; i < speeds.length; i++) {
+            final float speed = speeds[i];
+            TextView btn = dialog.findViewById(viewIds[i]);
+            if (btn != null) {
+                btn.setOnClickListener(v -> {
+                    mainViewModel.updatePlaybackSpeed(speed);
+                    // Also save to preferences
+                    SharedPreferences prefs = context.getSharedPreferences(APP_PREFERENCES, Context.MODE_PRIVATE);
+                    prefs.edit().putFloat(SPEED_KEY, speed).apply();
+                    dialog.dismiss();
+                });
+            }
+        }
+
+        dialog.show();
+    }
+
 
     static class PageViewHolder extends RecyclerView.ViewHolder {
         public PageViewHolder(@NonNull View itemView) {
@@ -391,6 +435,7 @@ public class PlayerViewPagerAdapter extends RecyclerView.Adapter<PlayerViewPager
         CircularProgressDrawable progressDrawable;
         ProgressBar loadingProgressBar;
         ImageView btnSleepTimer;
+        TextView btnSpeed;
 
         public ControlsViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -407,6 +452,7 @@ public class PlayerViewPagerAdapter extends RecyclerView.Adapter<PlayerViewPager
             btnForward = itemView.findViewById(R.id.btn_forward);
             loadingProgressBar = itemView.findViewById(R.id.loading_progress_bar);
             btnSleepTimer = itemView.findViewById(R.id.btn_sleep_timer);
+            btnSpeed = itemView.findViewById(R.id.btn_speed);
 
             progressDrawable = new CircularProgressDrawable(itemView.getContext());
             progressDrawable.setStrokeWidth(5f);
