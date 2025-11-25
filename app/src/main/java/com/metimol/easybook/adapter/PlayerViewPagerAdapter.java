@@ -420,7 +420,7 @@ public class PlayerViewPagerAdapter extends RecyclerView.Adapter<PlayerViewPager
         if (currentSpeed > 5.0f) currentSpeed = 5.0f;
 
         List<Float> speedValues = new ArrayList<>();
-        for (int i = 25; i <= 500; i += 25) {
+        for (int i = 25; i <= 500; i += 5) {
             speedValues.add(i / 100.0f);
         }
 
@@ -428,6 +428,7 @@ public class PlayerViewPagerAdapter extends RecyclerView.Adapter<PlayerViewPager
 
         for (int i = 0; i < speedValues.size(); i++) {
             float speed = speedValues.get(i);
+            int valueInt = (int) (speed * 100);
 
             LinearLayout itemLayout = new LinearLayout(context);
             itemLayout.setOrientation(LinearLayout.VERTICAL);
@@ -436,13 +437,18 @@ public class PlayerViewPagerAdapter extends RecyclerView.Adapter<PlayerViewPager
                     LinearLayout.LayoutParams.WRAP_CONTENT,
                     LinearLayout.LayoutParams.WRAP_CONTENT
             );
+
             if (i < speedValues.size() - 1) {
-                itemParams.setMarginEnd(dpToPx(20));
+                itemParams.setMarginEnd(dpToPx(8));
             }
             itemLayout.setLayoutParams(itemParams);
 
+            boolean isMajor = (valueInt % 10 == 0);
+            boolean showText = (valueInt % 20 == 0);
+
             View line = new View(context);
-            LinearLayout.LayoutParams lineParams = new LinearLayout.LayoutParams(dpToPx(2), dpToPx(40));
+            int height = isMajor ? dpToPx(16) : dpToPx(8);
+            LinearLayout.LayoutParams lineParams = new LinearLayout.LayoutParams(dpToPx(2), height);
             line.setLayoutParams(lineParams);
             line.setBackgroundColor(ContextCompat.getColor(context, R.color.light_grey));
             itemLayout.addView(line);
@@ -455,11 +461,17 @@ public class PlayerViewPagerAdapter extends RecyclerView.Adapter<PlayerViewPager
             textParams.topMargin = dpToPx(8);
             text.setLayoutParams(textParams);
             text.setText(String.format(Locale.US, "%.1f", speed));
-            text.setTextSize(14);
+            text.setTextSize(12);
             text.setTextColor(ContextCompat.getColor(context, R.color.light_grey));
             text.setTypeface(typeface);
-            itemLayout.addView(text);
 
+            if (showText) {
+                text.setVisibility(View.VISIBLE);
+            } else {
+                text.setVisibility(View.INVISIBLE);
+            }
+
+            itemLayout.addView(text);
             container.addView(itemLayout);
         }
 
@@ -540,12 +552,12 @@ public class PlayerViewPagerAdapter extends RecyclerView.Adapter<PlayerViewPager
                     closestIndex = i;
                 }
 
-                updateChildVisuals(child, false, greyColor);
+                updateChildVisuals(child, false, greyColor, i);
             }
 
             if (closestIndex != -1) {
                 View closestChild = container.getChildAt(closestIndex);
-                updateChildVisuals(closestChild, true, greenColor);
+                updateChildVisuals(closestChild, true, greenColor, closestIndex);
 
                 float selectedSpeed = speedValues.get(closestIndex);
                 speedValueText.setText(String.format(Locale.US, "%.2f", selectedSpeed));
@@ -568,25 +580,33 @@ public class PlayerViewPagerAdapter extends RecyclerView.Adapter<PlayerViewPager
         dialog.show();
     }
 
-    private void updateChildVisuals(View child, boolean isActive, int activeColor) {
+    private void updateChildVisuals(View child, boolean isActive, int activeColor, int index) {
         if (child instanceof LinearLayout group) {
             View line = group.getChildAt(0);
             TextView text = (TextView) group.getChildAt(1);
 
+            int valueInt = 25 + (index * 5);
+            boolean isMajor = (valueInt % 10 == 0);
+            boolean showText = (valueInt % 20 == 0);
+
             ViewGroup.LayoutParams params = line.getLayoutParams();
             if (isActive) {
-                params.height = dpToPx(50);
+                params.height = dpToPx(24);
                 line.setLayoutParams(params);
                 line.setBackgroundColor(activeColor);
 
                 text.setVisibility(View.INVISIBLE);
             } else {
-                params.height = dpToPx(40);
+                params.height = isMajor ? dpToPx(16) : dpToPx(8);
                 line.setLayoutParams(params);
                 line.setBackgroundColor(Color.LTGRAY);
 
-                text.setVisibility(View.VISIBLE);
-                text.setTextColor(Color.LTGRAY);
+                if (showText) {
+                    text.setVisibility(View.VISIBLE);
+                    text.setTextColor(Color.LTGRAY);
+                } else {
+                    text.setVisibility(View.INVISIBLE);
+                }
             }
         }
     }
