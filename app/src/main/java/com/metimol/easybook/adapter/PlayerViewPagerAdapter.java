@@ -35,8 +35,10 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.CircularProgressDrawable;
 
 import com.bumptech.glide.Glide;
+
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
 import com.metimol.easybook.MainViewModel;
 import com.metimol.easybook.R;
 import com.metimol.easybook.api.models.Author;
@@ -355,45 +357,66 @@ public class PlayerViewPagerAdapter extends RecyclerView.Adapter<PlayerViewPager
         BottomSheetDialog dialog = new BottomSheetDialog(context, R.style.CustomBottomSheetDialogTheme);
         dialog.setContentView(R.layout.fragment_timer_dialog);
 
-        if (mainViewModel == null) return;
+        if (mainViewModel == null || playbackService == null) return;
+
+        int currentMode = playbackService.activeSleepTimerMode.getValue() != null
+                ? playbackService.activeSleepTimerMode.getValue()
+                : PlaybackService.TIMER_OFF;
+
+        int greenColor = ContextCompat.getColor(context, R.color.green);
 
         TextView timer_off = dialog.findViewById(R.id.timer_off);
+        TextView timer_5 = dialog.findViewById(R.id.timer_5);
+        TextView timer_15 = dialog.findViewById(R.id.timer_15);
+        TextView timer_30 = dialog.findViewById(R.id.timer_30);
+        TextView timer_45 = dialog.findViewById(R.id.timer_45);
+        TextView timer_60 = dialog.findViewById(R.id.timer_60);
+        TextView timer_end_of_chapter = dialog.findViewById(R.id.timer_end_of_chapter);
+
+        TextView activeView = switch (currentMode) {
+            case PlaybackService.TIMER_5 -> timer_5;
+            case PlaybackService.TIMER_15 -> timer_15;
+            case PlaybackService.TIMER_30 -> timer_30;
+            case PlaybackService.TIMER_45 -> timer_45;
+            case PlaybackService.TIMER_60 -> timer_60;
+            case PlaybackService.TIMER_END_OF_CHAPTER -> timer_end_of_chapter;
+            default -> timer_off;
+        };
+
+        if (activeView != null) {
+            activeView.setTextColor(greenColor);
+        }
+
         Objects.requireNonNull(timer_off).setOnClickListener(v -> {
             mainViewModel.cancelSleepTimer();
             dialog.dismiss();
         });
 
-        TextView timer_5 = dialog.findViewById(R.id.timer_5);
         Objects.requireNonNull(timer_5).setOnClickListener(v -> {
             mainViewModel.setSleepTimer(5);
             dialog.dismiss();
         });
 
-        TextView timer_15 = dialog.findViewById(R.id.timer_15);
         Objects.requireNonNull(timer_15).setOnClickListener(v -> {
             mainViewModel.setSleepTimer(15);
             dialog.dismiss();
         });
 
-        TextView timer_30 = dialog.findViewById(R.id.timer_30);
         Objects.requireNonNull(timer_30).setOnClickListener(v -> {
             mainViewModel.setSleepTimer(30);
             dialog.dismiss();
         });
 
-        TextView timer_45 = dialog.findViewById(R.id.timer_45);
         Objects.requireNonNull(timer_45).setOnClickListener(v -> {
             mainViewModel.setSleepTimer(45);
             dialog.dismiss();
         });
 
-        TextView timer_60 = dialog.findViewById(R.id.timer_60);
         Objects.requireNonNull(timer_60).setOnClickListener(v -> {
             mainViewModel.setSleepTimer(60);
             dialog.dismiss();
         });
 
-        TextView timer_end_of_chapter = dialog.findViewById(R.id.timer_end_of_chapter);
         Objects.requireNonNull(timer_end_of_chapter).setOnClickListener(v -> {
             mainViewModel.setSleepTimerEndOfChapter();
             dialog.dismiss();

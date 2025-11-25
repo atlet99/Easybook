@@ -41,6 +41,7 @@ import androidx.media3.ui.PlayerNotificationManager;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
+
 import com.metimol.easybook.MainActivity;
 import com.metimol.easybook.R;
 import com.metimol.easybook.api.models.Book;
@@ -57,6 +58,14 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 public class PlaybackService extends MediaSessionService {
+    public static final int TIMER_OFF = 0;
+    public static final int TIMER_5 = 5;
+    public static final int TIMER_15 = 15;
+    public static final int TIMER_30 = 30;
+    public static final int TIMER_45 = 45;
+    public static final int TIMER_60 = 60;
+    public static final int TIMER_END_OF_CHAPTER = -1;
+
     private MediaSession mediaSession;
     private ExoPlayer player;
     @OptIn(markerClass = UnstableApi.class)
@@ -77,6 +86,8 @@ public class PlaybackService extends MediaSessionService {
     public final MutableLiveData<Float> playbackSpeed = new MutableLiveData<>(1.0f);
 
     public final MutableLiveData<Boolean> isSleepTimerActive = new MutableLiveData<>(false);
+    public final MutableLiveData<Integer> activeSleepTimerMode = new MutableLiveData<>(TIMER_OFF);
+
     private long sleepTimerEndTime = 0;
     private boolean sleepTimerEndOfChapter = false;
 
@@ -266,6 +277,7 @@ public class PlaybackService extends MediaSessionService {
                 if (sleepTimerEndOfChapter && reason == Player.MEDIA_ITEM_TRANSITION_REASON_AUTO) {
                     player.pause();
                     cancelSleepTimer();
+                    activeSleepTimerMode.postValue(TIMER_OFF);
                 }
 
                 saveCurrentBookProgress();
@@ -302,6 +314,7 @@ public class PlaybackService extends MediaSessionService {
 
                     if (sleepTimerEndOfChapter) {
                         cancelSleepTimer();
+                        activeSleepTimerMode.postValue(TIMER_OFF);
                     }
                 } else if (playbackState == Player.STATE_BUFFERING) {
                     isLoading.postValue(true);
@@ -323,6 +336,7 @@ public class PlaybackService extends MediaSessionService {
                     if (sleepTimerEndTime > 0 && System.currentTimeMillis() >= sleepTimerEndTime) {
                         player.pause();
                         cancelSleepTimer();
+                        activeSleepTimerMode.postValue(TIMER_OFF);
                     }
 
                     checkBookFinishedCondition(pos);
@@ -341,18 +355,21 @@ public class PlaybackService extends MediaSessionService {
         sleepTimerEndTime = System.currentTimeMillis() + (minutes * 60 * 1000L);
         sleepTimerEndOfChapter = false;
         isSleepTimerActive.postValue(true);
+        activeSleepTimerMode.postValue(minutes);
     }
 
     public void setSleepTimerEndOfChapter() {
         sleepTimerEndTime = 0;
         sleepTimerEndOfChapter = true;
         isSleepTimerActive.postValue(true);
+        activeSleepTimerMode.postValue(TIMER_END_OF_CHAPTER);
     }
 
     public void cancelSleepTimer() {
         sleepTimerEndTime = 0;
         sleepTimerEndOfChapter = false;
         isSleepTimerActive.postValue(false);
+        activeSleepTimerMode.postValue(TIMER_OFF);
     }
 
     private void checkBookFinishedCondition(long currentPosition) {
