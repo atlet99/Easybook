@@ -506,8 +506,8 @@ public class PlayerViewPagerAdapter extends RecyclerView.Adapter<PlayerViewPager
             public void onGlobalLayout() {
                 scrollView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
 
-                int screenWidth = context.getResources().getDisplayMetrics().widthPixels;
-                int centerOffset = screenWidth / 2;
+                int scrollViewWidth = scrollView.getWidth();
+                int centerOffset = scrollViewWidth / 2;
                 container.setPadding(centerOffset, 0, centerOffset, 0);
 
                 int closestIndex = -1;
@@ -549,8 +549,8 @@ public class PlayerViewPagerAdapter extends RecyclerView.Adapter<PlayerViewPager
 
                 if (closestIndex != -1) {
                     View targetView = container.getChildAt(closestIndex);
-                    int screenWidth = context.getResources().getDisplayMetrics().widthPixels;
-                    int centerOffset = screenWidth / 2;
+                    int scrollViewWidth = scrollView.getWidth();
+                    int centerOffset = scrollViewWidth / 2;
                     int targetScrollX = (targetView.getLeft() + targetView.getRight()) / 2 - centerOffset;
                     scrollView.smoothScrollTo(targetScrollX, 0);
                     return true;
