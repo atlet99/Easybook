@@ -101,6 +101,7 @@
                     android:layout_width="30dp"
                     android:layout_height="21dp"
                     android:src="@drawable/ic_arrow_right"
+                    app:tint="@color/light_grey"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
@@ -146,6 +147,7 @@
                     android:layout_width="30dp"
                     android:layout_height="21dp"
                     android:src="@drawable/ic_arrow_right"
+                    app:tint="@color/light_grey"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
@@ -191,6 +193,7 @@
                     android:layout_width="30dp"
                     android:layout_height="21dp"
                     android:src="@drawable/ic_arrow_right"
+                    app:tint="@color/light_grey"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
@@ -235,6 +238,7 @@
                     android:layout_width="30dp"
                     android:layout_height="21dp"
                     android:src="@drawable/ic_arrow_right"
+                    app:tint="@color/light_grey"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
@@ -279,6 +283,7 @@
                     android:layout_width="30dp"
                     android:layout_height="21dp"
                     android:src="@drawable/ic_arrow_right"
+                    app:tint="@color/light_grey"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
@@ -323,6 +328,7 @@
                     android:layout_width="30dp"
                     android:layout_height="21dp"
                     android:src="@drawable/ic_arrow_right"
+                    app:tint="@color/light_grey"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
