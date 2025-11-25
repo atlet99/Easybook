@@ -3,13 +3,24 @@ package com.metimol.easybook.adapter;
 import static com.metimol.easybook.MainActivity.APP_PREFERENCES;
 import static com.metimol.easybook.SettingsFragment.SPEED_KEY;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
+import android.graphics.Color;
+import android.graphics.Typeface;
+import android.os.Build;
+import android.os.VibrationEffect;
+import android.os.Vibrator;
+import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
+import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -17,6 +28,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.core.widget.ImageViewCompat;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -34,6 +46,7 @@ import com.metimol.easybook.api.models.BookFile;
 import com.metimol.easybook.service.PlaybackService;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 
@@ -52,6 +65,7 @@ public class PlayerViewPagerAdapter extends RecyclerView.Adapter<PlayerViewPager
     private final Runnable onChapterClick;
 
     private MainViewModel mainViewModel;
+    private int lastSelectedSpeedIndex = -1;
 
     public PlayerViewPagerAdapter(LifecycleOwner lifecycleOwner, EpisodeAdapter episodeAdapter, Runnable onChapterClick) {
         this.lifecycleOwner = lifecycleOwner;
@@ -389,35 +403,197 @@ public class PlayerViewPagerAdapter extends RecyclerView.Adapter<PlayerViewPager
         dialog.show();
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     private void showSpeedDialog(Context context) {
         BottomSheetDialog dialog = new BottomSheetDialog(context, R.style.CustomBottomSheetDialogTheme);
         dialog.setContentView(R.layout.fragment_speed_dialog);
 
-        if (mainViewModel == null) return;
+        HorizontalScrollView scrollView = dialog.findViewById(R.id.speed_scroll_view);
+        LinearLayout container = dialog.findViewById(R.id.speed_container);
+        TextView speedValueText = dialog.findViewById(R.id.speed_value_text);
 
-        float[] speeds = {0.5f, 0.75f, 1.0f, 1.25f, 1.5f, 1.75f, 2.0f};
-        int[] viewIds = {
-                R.id.speed_0_5, R.id.speed_0_75, R.id.speed_1_0,
-                R.id.speed_1_25, R.id.speed_1_5, R.id.speed_1_75, R.id.speed_2_0
-        };
+        if (scrollView == null || container == null || speedValueText == null) return;
 
-        for (int i = 0; i < speeds.length; i++) {
-            final float speed = speeds[i];
-            TextView btn = dialog.findViewById(viewIds[i]);
-            if (btn != null) {
-                btn.setOnClickListener(v -> {
-                    mainViewModel.updatePlaybackSpeed(speed);
-                    // Also save to preferences
-                    SharedPreferences prefs = context.getSharedPreferences(APP_PREFERENCES, Context.MODE_PRIVATE);
-                    prefs.edit().putFloat(SPEED_KEY, speed).apply();
-                    dialog.dismiss();
-                });
-            }
+        SharedPreferences prefs = context.getSharedPreferences(APP_PREFERENCES, Context.MODE_PRIVATE);
+        float currentSpeed = prefs.getFloat(SPEED_KEY, 1.0f);
+        if (currentSpeed < 0.25f) currentSpeed = 0.25f;
+        if (currentSpeed > 5.0f) currentSpeed = 5.0f;
+
+        List<Float> speedValues = new ArrayList<>();
+        for (int i = 25; i <= 500; i += 25) {
+            speedValues.add(i / 100.0f);
         }
 
+        Typeface typeface = ResourcesCompat.getFont(context, R.font.sf_pro);
+
+        for (int i = 0; i < speedValues.size(); i++) {
+            float speed = speedValues.get(i);
+
+            LinearLayout itemLayout = new LinearLayout(context);
+            itemLayout.setOrientation(LinearLayout.VERTICAL);
+            itemLayout.setGravity(Gravity.CENTER_HORIZONTAL);
+            LinearLayout.LayoutParams itemParams = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+            );
+            if (i < speedValues.size() - 1) {
+                itemParams.setMarginEnd(dpToPx(20));
+            }
+            itemLayout.setLayoutParams(itemParams);
+
+            View line = new View(context);
+            LinearLayout.LayoutParams lineParams = new LinearLayout.LayoutParams(dpToPx(2), dpToPx(40));
+            line.setLayoutParams(lineParams);
+            line.setBackgroundColor(ContextCompat.getColor(context, R.color.light_grey));
+            itemLayout.addView(line);
+
+            TextView text = new TextView(context);
+            LinearLayout.LayoutParams textParams = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+            );
+            textParams.topMargin = dpToPx(8);
+            text.setLayoutParams(textParams);
+            text.setText(String.format(Locale.US, "%.1f", speed));
+            text.setTextSize(14);
+            text.setTextColor(ContextCompat.getColor(context, R.color.light_grey));
+            text.setTypeface(typeface);
+            itemLayout.addView(text);
+
+            container.addView(itemLayout);
+        }
+
+        final float finalCurrentSpeed = currentSpeed;
+        final int greenColor = ContextCompat.getColor(context, R.color.green);
+        final int greyColor = ContextCompat.getColor(context, R.color.light_grey);
+
+        scrollView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                scrollView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+
+                int screenWidth = context.getResources().getDisplayMetrics().widthPixels;
+                int centerOffset = screenWidth / 2;
+                container.setPadding(centerOffset, 0, centerOffset, 0);
+
+                int closestIndex = -1;
+                float minDiff = Float.MAX_VALUE;
+                for (int i = 0; i < speedValues.size(); i++) {
+                    float diff = Math.abs(speedValues.get(i) - finalCurrentSpeed);
+                    if (diff < minDiff) {
+                        minDiff = diff;
+                        closestIndex = i;
+                    }
+                }
+
+                if (closestIndex != -1 && closestIndex < container.getChildCount()) {
+                    View targetView = container.getChildAt(closestIndex);
+                    targetView.post(() -> {
+                        int scrollX = (targetView.getLeft() + targetView.getRight()) / 2 - centerOffset;
+                        scrollView.scrollTo(scrollX, 0);
+                    });
+                }
+            }
+        });
+
+        scrollView.setOnTouchListener((v, event) -> {
+            if (event.getAction() == MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_CANCEL) {
+                int centerX = scrollView.getScrollX() + (scrollView.getWidth() / 2);
+                int closestIndex = -1;
+                int minDistance = Integer.MAX_VALUE;
+
+                for (int i = 0; i < container.getChildCount(); i++) {
+                    View child = container.getChildAt(i);
+                    int childCenter = (child.getLeft() + child.getRight()) / 2;
+                    int distance = Math.abs(centerX - childCenter);
+
+                    if (distance < minDistance) {
+                        minDistance = distance;
+                        closestIndex = i;
+                    }
+                }
+
+                if (closestIndex != -1) {
+                    View targetView = container.getChildAt(closestIndex);
+                    int screenWidth = context.getResources().getDisplayMetrics().widthPixels;
+                    int centerOffset = screenWidth / 2;
+                    int targetScrollX = (targetView.getLeft() + targetView.getRight()) / 2 - centerOffset;
+                    scrollView.smoothScrollTo(targetScrollX, 0);
+                    return true;
+                }
+            }
+            return false;
+        });
+
+        scrollView.setOnScrollChangeListener((v, scrollX, scrollY, oldScrollX, oldScrollY) -> {
+            int centerX = scrollX + (scrollView.getWidth() / 2);
+            int closestIndex = -1;
+            int minDistance = Integer.MAX_VALUE;
+
+            for (int i = 0; i < container.getChildCount(); i++) {
+                View child = container.getChildAt(i);
+                int childCenter = (child.getLeft() + child.getRight()) / 2;
+                int distance = Math.abs(centerX - childCenter);
+
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    closestIndex = i;
+                }
+
+                updateChildVisuals(child, false, greyColor);
+            }
+
+            if (closestIndex != -1) {
+                View closestChild = container.getChildAt(closestIndex);
+                updateChildVisuals(closestChild, true, greenColor);
+
+                float selectedSpeed = speedValues.get(closestIndex);
+                speedValueText.setText(String.format(Locale.US, "%.2f", selectedSpeed));
+
+                if (lastSelectedSpeedIndex != closestIndex) {
+                    Vibrator vibrator = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
+                    if (vibrator != null && vibrator.hasVibrator()) {
+                        vibrator.vibrate(VibrationEffect.createOneShot(10, VibrationEffect.DEFAULT_AMPLITUDE));
+                    }
+                    lastSelectedSpeedIndex = closestIndex;
+                }
+
+                if (mainViewModel != null) {
+                    mainViewModel.updatePlaybackSpeed(selectedSpeed);
+                }
+                prefs.edit().putFloat(SPEED_KEY, selectedSpeed).apply();
+            }
+        });
+        dialog.setOnDismissListener(dialogInterface -> lastSelectedSpeedIndex = -1);
         dialog.show();
     }
 
+    private void updateChildVisuals(View child, boolean isActive, int activeColor) {
+        if (child instanceof LinearLayout group) {
+            View line = group.getChildAt(0);
+            TextView text = (TextView) group.getChildAt(1);
+
+            ViewGroup.LayoutParams params = line.getLayoutParams();
+            if (isActive) {
+                params.height = dpToPx(50);
+                line.setLayoutParams(params);
+                line.setBackgroundColor(activeColor);
+
+                text.setVisibility(View.INVISIBLE);
+            } else {
+                params.height = dpToPx(40);
+                line.setLayoutParams(params);
+                line.setBackgroundColor(Color.LTGRAY);
+
+                text.setVisibility(View.VISIBLE);
+                text.setTextColor(Color.LTGRAY);
+            }
+        }
+    }
+
+    private int dpToPx(int dp) {
+        return (int) (dp * android.content.res.Resources.getSystem().getDisplayMetrics().density);
+    }
 
     static class PageViewHolder extends RecyclerView.ViewHolder {
         public PageViewHolder(@NonNull View itemView) {
