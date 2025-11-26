@@ -4,6 +4,7 @@ cardview = "1.0.0"
 glide = "5.0.5"
 media3Exoplayer = "1.8.0"
 mediaCompat = "1.7.0"
+playServicesAuth = "21.4.0"
 retrofit = "2.9.0"
 junit = "4.13.2"
 junitVersion = "1.3.0"
@@ -37,12 +38,15 @@ media3-session = { module = "androidx.media3:media3-session", version.ref = "med
 media3-ui = { module = "androidx.media3:media3-ui", version.ref = "media3Exoplayer" }
 media-compat = { module = "androidx.media:media", version.ref = "mediaCompat" }
 navigation-fragment = { group = "androidx.navigation", name = "navigation-fragment", version.ref = "navigationFragment" }
+play-services-auth = { module = "com.google.android.gms:play-services-auth", version.ref = "playServicesAuth" }
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
 room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
 room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
 swiperefreshlayout = { module = "androidx.swiperefreshlayout:swiperefreshlayout", version.ref = "swiperefreshlayout" }
 firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
+firebase-auth = { module = "com.google.firebase:firebase-auth" }
+firebase-database = { module = "com.google.firebase:firebase-database" }
 circleimageview = { module = "de.hdodenhof:circleimageview", version.ref = "circleimageview" }
 
 [plugins]
