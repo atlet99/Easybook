@@ -844,4 +844,8 @@ public class MainViewModel extends AndroidViewModel {
         }
         return id == null && currentSourceId == null;
     }
+
+    public void logout() {
+        firebaseRepository.logout();
+    }
 }

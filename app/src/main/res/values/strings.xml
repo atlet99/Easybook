@@ -88,6 +88,7 @@
     <string name="edit">Редактировать</string>
     <string name="default_username">Пользователь</string>
     <string name="settings">Настройки</string>
+    <string name="logout">Выйти</string>
     <string name="share">Поделится приложением</string>
     <string name="rateUs">Оцените нас</string>
     <string name="bookmarks">Закладки</string>

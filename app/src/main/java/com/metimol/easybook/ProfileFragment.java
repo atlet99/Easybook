@@ -47,6 +47,7 @@ public class ProfileFragment extends Fragment {
         ConstraintLayout share = view.findViewById(R.id.share);
         ConstraintLayout rateUs = view.findViewById(R.id.rateUs);
         ConstraintLayout settings = view.findViewById(R.id.settings);
+        ConstraintLayout logout = view.findViewById(R.id.logout);
 
         ConstraintLayout bookmarks = view.findViewById(R.id.bookmarks);
         ConstraintLayout listening = view.findViewById(R.id.listen);
@@ -90,6 +91,20 @@ public class ProfileFragment extends Fragment {
             Bundle bundle = new Bundle();
             bundle.putString("sourceType", "LISTENED");
             navController.navigate(R.id.action_profileFragment_to_booksCollectionFragment, bundle);
+        });
+
+        logout.setOnClickListener(v -> {
+            mainViewModel.logout();
+
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.remove(USERNAME_KEY);
+            editor.remove(AVATAR_KEY);
+            editor.apply();
+
+            navController.navigate(R.id.action_profileFragment_to_loginFragment, null,
+                    new androidx.navigation.NavOptions.Builder()
+                            .setPopUpTo(R.id.nav_graph, true)
+                            .build());
         });
     }
 
