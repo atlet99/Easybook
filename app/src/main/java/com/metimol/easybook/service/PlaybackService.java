@@ -48,6 +48,7 @@ import com.metimol.easybook.api.models.Book;
 import com.metimol.easybook.api.models.BookFile;
 import com.metimol.easybook.database.AppDatabase;
 import com.metimol.easybook.database.AudiobookDao;
+import com.metimol.easybook.firebase.FirebaseRepository;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -66,6 +67,7 @@ public class PlaybackService extends MediaSessionService {
     public static final int TIMER_60 = 60;
     public static final int TIMER_END_OF_CHAPTER = -1;
 
+    private FirebaseRepository firebaseRepository;
     private MediaSession mediaSession;
     private ExoPlayer player;
     @OptIn(markerClass = UnstableApi.class)
@@ -122,6 +124,7 @@ public class PlaybackService extends MediaSessionService {
         createNotificationChannel();
 
         audiobookDao = AppDatabase.getDatabase(this).audiobookDao();
+        firebaseRepository = new FirebaseRepository(audiobookDao);
         databaseExecutor = Executors.newSingleThreadExecutor();
 
         int minBufferMs = 60_000;
@@ -475,6 +478,11 @@ public class PlaybackService extends MediaSessionService {
             } else {
                 audiobookDao.updateBookProgress(bookId, chapterId, timestamp, lastListened, false, percentage);
             }
+
+            com.metimol.easybook.database.Book updatedBook = audiobookDao.getBookById(bookId);
+            if (updatedBook != null) {
+                firebaseRepository.updateBookInCloud(updatedBook);
+            }
         });
     }
 
@@ -525,6 +533,11 @@ public class PlaybackService extends MediaSessionService {
                     audiobookDao.updateFinishedStatus(bookId, true, 100);
                     audiobookDao.updateBookProgress(bookId, null, 0, System.currentTimeMillis(), true, 100);
                 }
+            }
+
+            com.metimol.easybook.database.Book updatedBook = audiobookDao.getBookById(bookId);
+            if (updatedBook != null) {
+                firebaseRepository.updateBookInCloud(updatedBook);
             }
         });
     }
@@ -610,6 +623,11 @@ public class PlaybackService extends MediaSessionService {
             } else {
                 audiobookDao.updateFinishedStatus(bookId, false, percentage);
                 audiobookDao.updateBookProgress(bookId, chapterId, timestamp, lastListened, false, percentage);
+            }
+
+            com.metimol.easybook.database.Book updatedBook = audiobookDao.getBookById(bookId);
+            if (updatedBook != null) {
+                firebaseRepository.updateBookInCloud(updatedBook);
             }
         });
 

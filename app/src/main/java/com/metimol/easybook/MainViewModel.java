@@ -26,6 +26,7 @@ import com.metimol.easybook.api.models.response.BooksWithDatesData;
 import com.metimol.easybook.api.models.response.SearchData;
 import com.metimol.easybook.api.models.response.SeriesSearchData;
 import com.metimol.easybook.api.models.response.SourceData;
+import com.metimol.easybook.firebase.FirebaseRepository;
 import com.metimol.easybook.service.PlaybackService;
 
 import java.util.ArrayList;
@@ -42,6 +43,7 @@ import retrofit2.Response;
 public class MainViewModel extends AndroidViewModel {
     private enum SourceType { NONE, GENRE, SERIES, FAVORITES, LISTENED, LISTENING }
 
+    private final FirebaseRepository firebaseRepository;
     private final MutableLiveData<Integer> statusBarHeight = new MutableLiveData<>();
     private final MutableLiveData<List<Category>> categories = new MutableLiveData<>();
     private final MutableLiveData<List<Book>> books = new MutableLiveData<>();
@@ -74,6 +76,9 @@ public class MainViewModel extends AndroidViewModel {
         super(application);
         audiobookDao = AppDatabase.getDatabase(application).audiobookDao();
         databaseExecutor = Executors.newSingleThreadExecutor();
+
+        firebaseRepository = new FirebaseRepository(audiobookDao);
+        firebaseRepository.startSync();
     }
 
     public void setPlaybackService(PlaybackService service) {
@@ -258,6 +263,11 @@ public class MainViewModel extends AndroidViewModel {
                 boolean newStatus = currentStatus == null || !currentStatus;
                 audiobookDao.updateFavoriteStatus(bookId, newStatus);
             }
+
+            com.metimol.easybook.database.Book updatedBook = audiobookDao.getBookById(bookId);
+            if (updatedBook != null) {
+                firebaseRepository.updateBookInCloud(updatedBook);
+            }
         });
     }
 
@@ -289,6 +299,11 @@ public class MainViewModel extends AndroidViewModel {
                 } else {
                     audiobookDao.updateBookProgress(bookId, null, 0, now, false, 0);
                 }
+            }
+
+            com.metimol.easybook.database.Book updatedBook = audiobookDao.getBookById(bookId);
+            if (updatedBook != null) {
+                firebaseRepository.updateBookInCloud(updatedBook);
             }
         });
     }
