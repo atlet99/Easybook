@@ -1,12 +1,5 @@
 package com.metimol.easybook;
 
-import static com.metimol.easybook.MainActivity.APP_PREFERENCES;
-import static com.metimol.easybook.MainFragment.IS_FIRST_START_KEY;
-import static com.metimol.easybook.ProfileFragment.AVATAR_KEY;
-import static com.metimol.easybook.ProfileFragment.USERNAME_KEY;
-
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -31,22 +24,11 @@ public class StartScreenFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        Context context = requireContext();
-        SharedPreferences sharedPreferences = context.getSharedPreferences(APP_PREFERENCES, Context.MODE_PRIVATE);
         NavController navController = NavHostFragment.findNavController(this);
-
         MaterialButton button = view.findViewById(R.id.get_started_button);
 
         button.setOnClickListener(v -> {
-            SharedPreferences.Editor editor = sharedPreferences.edit();
-            String default_username = getString(R.string.default_username);
-
-            editor.putBoolean(IS_FIRST_START_KEY, false);
-            editor.putString(USERNAME_KEY, default_username);
-            editor.putString(AVATAR_KEY, "");
-            editor.apply();
-
-            navController.navigate(R.id.action_startScreenFragment_to_mainFragment);
+            navController.navigate(R.id.action_startScreenFragment_to_loginFragment);
         });
     }
 }

@@ -108,6 +108,16 @@ public class MainFragment extends Fragment {
         SharedPreferences sharedPreferences = context.getSharedPreferences(APP_PREFERENCES, Context.MODE_PRIVATE);
         NavController navController = NavHostFragment.findNavController(this);
 
+        if (com.google.firebase.auth.FirebaseAuth.getInstance().getCurrentUser() == null) {
+            navController.navigate(R.id.action_mainFragment_to_loginFragment);
+            return;
+        }
+
+        if (sharedPreferences.getBoolean(IS_FIRST_START_KEY, true)) {
+            navController.navigate(R.id.action_mainFragment_to_startScreenFragment);
+            return;
+        }
+
         if (sharedPreferences.getBoolean(IS_FIRST_START_KEY, true)) {
             navController.navigate(R.id.action_mainFragment_to_startScreenFragment);
         }

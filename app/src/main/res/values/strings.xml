@@ -119,4 +119,10 @@
 
     <string name="playback_speed">Скорость воспроизведения</string>
     <string name="speed_1_0x">1.00x</string>
+
+
+    <string name="welcome_back">Добро пожаловать!</string>
+    <string name="login_description">Войдите, чтобы синхронизировать ваши книги и прогресс на всех устройствах.</string>
+    <string name="error_auth_google">Ошибка входа Google:</string>
+    <string name="error_auth_firebase">Ошибка аутентификации Firebase</string>
 </resources>

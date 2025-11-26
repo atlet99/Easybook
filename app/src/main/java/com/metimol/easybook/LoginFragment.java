@@ -1,0 +1,119 @@
+package com.metimol.easybook;
+
+import static com.metimol.easybook.MainActivity.APP_PREFERENCES;
+import static com.metimol.easybook.MainFragment.IS_FIRST_START_KEY;
+import static com.metimol.easybook.ProfileFragment.AVATAR_KEY;
+import static com.metimol.easybook.ProfileFragment.USERNAME_KEY;
+
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ProgressBar;
+import android.widget.Toast;
+
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.navigation.NavController;
+import androidx.navigation.fragment.NavHostFragment;
+
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.common.SignInButton;
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseUser;
+import com.metimol.easybook.database.AppDatabase;
+import com.metimol.easybook.firebase.FirebaseRepository;
+
+public class LoginFragment extends Fragment {
+
+    private FirebaseRepository firebaseRepository;
+    private ActivityResultLauncher<Intent> signInLauncher;
+    private ProgressBar progressBar;
+    private NavController navController;
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        firebaseRepository = new FirebaseRepository(AppDatabase.getDatabase(requireContext()).audiobookDao());
+
+        signInLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(result.getData());
+                    handleSignInResult(task);
+                }
+        );
+    }
+
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.fragment_login, container, false);
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        navController = NavHostFragment.findNavController(this);
+        SignInButton signInButton = view.findViewById(R.id.sign_in_button);
+        progressBar = view.findViewById(R.id.login_progress);
+
+        signInButton.setSize(SignInButton.SIZE_WIDE);
+        signInButton.setOnClickListener(v -> signIn());
+    }
+
+    private void signIn() {
+        progressBar.setVisibility(View.VISIBLE);
+        Intent signInIntent = firebaseRepository.getGoogleSignInClient(requireContext()).getSignInIntent();
+        signInLauncher.launch(signInIntent);
+    }
+
+    private void handleSignInResult(Task<GoogleSignInAccount> completedTask) {
+        try {
+            GoogleSignInAccount account = completedTask.getResult(ApiException.class);
+            firebaseAuthWithGoogle(account.getIdToken());
+        } catch (ApiException e) {
+            progressBar.setVisibility(View.GONE);
+            Toast.makeText(requireContext(), getString(R.string.error_auth_google) + " " + e.getStatusCode(), Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void firebaseAuthWithGoogle(String idToken) {
+        firebaseRepository.firebaseAuthWithGoogle(idToken,
+                this::updateUIAndNavigate,
+                () -> {
+                    progressBar.setVisibility(View.GONE);
+                    Toast.makeText(requireContext(), getString(R.string.error_auth_firebase), Toast.LENGTH_SHORT).show();
+                }
+        );
+    }
+
+    private void updateUIAndNavigate() {
+        FirebaseUser user = firebaseRepository.getCurrentUser().getValue();
+        if (user != null) {
+            SharedPreferences prefs = requireContext().getSharedPreferences(APP_PREFERENCES, Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = prefs.edit();
+
+            String name = user.getDisplayName();
+            String photoUrl = user.getPhotoUrl() != null ? user.getPhotoUrl().toString() : "";
+
+            editor.putString(USERNAME_KEY, name != null ? name : getString(R.string.default_username));
+            editor.putString(AVATAR_KEY, photoUrl);
+            editor.putBoolean(IS_FIRST_START_KEY, false);
+            editor.apply();
+
+            progressBar.setVisibility(View.GONE);
+            navController.navigate(R.id.action_loginFragment_to_mainFragment);
+        }
+    }
+}
