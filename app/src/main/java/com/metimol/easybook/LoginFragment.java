@@ -19,13 +19,13 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
-import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseUser;
@@ -65,37 +65,45 @@ public class LoginFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         navController = NavHostFragment.findNavController(this);
-        SignInButton signInButton = view.findViewById(R.id.sign_in_button);
+        CardView btnGoogle = view.findViewById(R.id.btn_google);
+        CardView btnGithub = view.findViewById(R.id.btn_github);
         progressBar = view.findViewById(R.id.login_progress);
 
-        signInButton.setSize(SignInButton.SIZE_WIDE);
-        signInButton.setOnClickListener(v -> signIn());
+        btnGoogle.setOnClickListener(v -> signInWithGoogle());
+        btnGithub.setOnClickListener(v -> signInWithGitHub());
     }
 
-    private void signIn() {
+    private void signInWithGoogle() {
         progressBar.setVisibility(View.VISIBLE);
         Intent signInIntent = firebaseRepository.getGoogleSignInClient(requireContext()).getSignInIntent();
         signInLauncher.launch(signInIntent);
     }
 
-    private void handleSignInResult(Task<GoogleSignInAccount> completedTask) {
-        try {
-            GoogleSignInAccount account = completedTask.getResult(ApiException.class);
-            firebaseAuthWithGoogle(account.getIdToken());
-        } catch (ApiException e) {
-            progressBar.setVisibility(View.GONE);
-            Toast.makeText(requireContext(), getString(R.string.error_auth_google) + " " + e.getStatusCode(), Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    private void firebaseAuthWithGoogle(String idToken) {
-        firebaseRepository.firebaseAuthWithGoogle(idToken,
+    private void signInWithGitHub() {
+        progressBar.setVisibility(View.VISIBLE);
+        firebaseRepository.signInWithGitHub(requireActivity(),
                 this::updateUIAndNavigate,
                 () -> {
                     progressBar.setVisibility(View.GONE);
                     Toast.makeText(requireContext(), getString(R.string.error_auth_firebase), Toast.LENGTH_SHORT).show();
                 }
         );
+    }
+
+    private void handleSignInResult(Task<GoogleSignInAccount> completedTask) {
+        try {
+            GoogleSignInAccount account = completedTask.getResult(ApiException.class);
+            firebaseRepository.firebaseAuthWithGoogle(account.getIdToken(),
+                    this::updateUIAndNavigate,
+                    () -> {
+                        progressBar.setVisibility(View.GONE);
+                        Toast.makeText(requireContext(), getString(R.string.error_auth_firebase), Toast.LENGTH_SHORT).show();
+                    }
+            );
+        } catch (ApiException e) {
+            progressBar.setVisibility(View.GONE);
+            Toast.makeText(requireContext(), getString(R.string.error_auth_google) + " " + e.getStatusCode(), Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void updateUIAndNavigate() {

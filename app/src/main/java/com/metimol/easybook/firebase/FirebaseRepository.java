@@ -1,5 +1,6 @@
 package com.metimol.easybook.firebase;
 
+import android.app.Activity;
 import android.content.Context;
 import android.util.Log;
 
@@ -14,6 +15,7 @@ import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.auth.OAuthProvider;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -78,6 +80,22 @@ public class FirebaseRepository {
                         Log.e(TAG, "firebaseAuthWithGoogle: failure", task.getException());
                         onFailure.run();
                     }
+                });
+    }
+
+    public void signInWithGitHub(Activity activity, Runnable onSuccess, Runnable onFailure) {
+        OAuthProvider.Builder provider = OAuthProvider.newBuilder("github.com");
+        auth.startActivityForSignInWithProvider(activity, provider.build())
+                .addOnSuccessListener(authResult -> {
+                    Log.d(TAG, "signInWithGitHub: success");
+                    currentUser.setValue(auth.getCurrentUser());
+                    syncLocalDataToCloud();
+                    startSync();
+                    onSuccess.run();
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "signInWithGitHub: failure", e);
+                    onFailure.run();
                 });
     }
 

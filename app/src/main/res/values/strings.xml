@@ -126,4 +126,6 @@
     <string name="login_description">Войдите, чтобы синхронизировать ваши книги и прогресс на всех устройствах.</string>
     <string name="error_auth_google">Ошибка входа Google:</string>
     <string name="error_auth_firebase">Ошибка аутентификации Firebase</string>
+    <string name="google">Google</string>
+    <string name="github">GitHub</string>
 </resources>
