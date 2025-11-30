@@ -54,8 +54,6 @@ public class ProfileFragment extends Fragment {
         ConstraintLayout listening = view.findViewById(R.id.listen);
         ConstraintLayout listened = view.findViewById(R.id.listened);
 
-        boolean isGuest = sharedPreferences.getBoolean(IS_GUEST_KEY, false);
-
         mainViewModel.getStatusBarHeight().observe(getViewLifecycleOwner(), height -> {
             profile_container.setPaddingRelative(
                     profile_container.getPaddingStart(),
@@ -72,7 +70,7 @@ public class ProfileFragment extends Fragment {
         });
         editInfo.setOnClickListener(v -> navController.navigate(R.id.action_profileFragment_to_EditProfileFragment));
         share.setOnClickListener(v -> shareInfo(context, getString(R.string.share_text)));
-        rateUs.setOnClickListener(v -> startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/metimol/Easybook"))));
+        rateUs.setOnClickListener(v -> startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://4pda.to/forum/index.php?showtopic=1114314"))));
 
         settings.setOnClickListener(v -> {
             navController.navigate(R.id.action_profileFragment_to_SettingsFragment);
