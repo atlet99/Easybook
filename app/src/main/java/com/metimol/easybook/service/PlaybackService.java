@@ -139,6 +139,7 @@ public class PlaybackService extends MediaSessionService {
                         bufferForPlaybackMs,
                         bufferForPlaybackAfterRebufferMs
                 )
+                .setBackBuffer(10000, true)
                 .build();
 
         RenderersFactory renderersFactory = new DefaultRenderersFactory(this);
