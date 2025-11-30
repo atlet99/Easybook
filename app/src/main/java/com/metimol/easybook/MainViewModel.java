@@ -847,5 +847,9 @@ public class MainViewModel extends AndroidViewModel {
 
     public void logout() {
         firebaseRepository.logout();
+
+        databaseExecutor.execute(() -> {
+            AppDatabase.getDatabase(getApplication()).clearAllTables();
+        });
     }
 }
