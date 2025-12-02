@@ -1,5 +1,6 @@
 [versions]
 agp = "8.13.1"
+yandex_authsdk = "3.1.4"
 cardview = "1.0.0"
 glide = "5.0.5"
 media3Exoplayer = "1.8.0"
@@ -46,6 +47,7 @@ swiperefreshlayout = { module = "androidx.swiperefreshlayout:swiperefreshlayout"
 firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
 firebase-auth = { module = "com.google.firebase:firebase-auth" }
+yandex_authsdk = { module = "com.yandex.android:authsdk", version.ref = "yandex_authsdk" }
 firebase-database = { module = "com.google.firebase:firebase-database" }
 circleimageview = { module = "de.hdodenhof:circleimageview", version.ref = "circleimageview" }
 

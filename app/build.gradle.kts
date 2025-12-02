@@ -19,8 +19,8 @@ android {
         applicationId = "com.metimol.easybook"
         minSdk = 29
         targetSdk = 36
-        versionCode = 9
-        versionName = "1.1.1"
+        versionCode = 10
+        versionName = "1.1.2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -93,4 +93,5 @@ dependencies {
     implementation(libs.media3.common)
     implementation(libs.media3.ui)
     implementation(libs.media.compat)
+    implementation(libs.yandex.authsdk)
 }
